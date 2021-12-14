@@ -1,32 +1,26 @@
-import { add, circle, clear, debug, getPixel, mouse, output, pixel, resetCanvas, setUpdate, Sprite, text } from "./balder.js";
+import { add, circle, clear, debug, div, getPixel, input, keyboard, mouse, output, pixel, resetCanvas, setUpdate, sleep, Sprite, text } from "./balder.js";
+
+let x = 100
 
 
-// let t = add("table", "övwerskrift")
 
-// for (let j = 0; j < 10; j++) {
+setUpdate(() => {
+    circle(x, 100, 20)
     
-    //     let tr = add("tr", t)
+    if (keyboard.d) {
+        keyboard.d = false
+        x++
+        div.innerHTML=""
+        output(x)
+    }
+    
+})
 
-    //     for (let i = 0; i < 10; i++) {
-        //         add("td", i.toString(), tr)
-        //     }
-        // }
-        
-        // let s = new Sprite("sheet8.png", 3, 6)
-        
-        // s.draw()
-        
-        // output(s)
-        
-// localStorage.setItem('s', JSON.stringify(s))
 
-add("button", "clear").onclick = () => {
-    // let x = document.getElementsByTagName("canvas")[0]
-    // let x = customElements.get("balder-canvas") as BalderCanvas
-    debug(123)
-}
+// let n = +await input("Ett heltal")
+// output(n ** 2)
 
-resetCanvas()
-circle(100, 100, 100)
 
-// document.body.style.flexFlow = "column"
+// add("button", "reload").onclick = () => {
+//     location.reload()
+// }

@@ -3,9 +3,9 @@
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
 
-// export div ? 
-// id="balder-div", behöve ej - skapas bara om canvas skapas automatiskt?
-// balder-div as parent? export? -section - flex-direction...
+// div.clear() ? Behövs balder-div ändå? Annars funkar inte output som man tänkconsole.error();
+
+// Sätta elt i fokus vid add? 
 
 // Vector2D - Martins (och Felix´) exempel på en inspirationssida!!!!
 // Alla exempel på github?
@@ -1278,7 +1278,7 @@ interface _ExtraTagMap {
 
 export interface TagTypeMap extends HTMLElementTagNameMap, _ExtraTagMap { }     // ? TagNameMap BalderTagNameMap
 
-let _parent: HTMLDivElement;
+export let div: HTMLDivElement;
 
 export function add<K extends keyof TagTypeMap>(
     tagName: K
@@ -1374,7 +1374,7 @@ export function add<K extends keyof TagTypeMap>(
         }
     }
 
-    let parent: HTMLElement = _parent ?? document.body;
+    let parent: HTMLElement = div ?? document.body;
     let before: Node | null = null;
     let newline = true;
 
@@ -1402,6 +1402,7 @@ export function add<K extends keyof TagTypeMap>(
     }
 
     parent.insertBefore(elt, before);
+    elt.focus();        // 3.0
     return elt;
 }
 
@@ -1515,7 +1516,7 @@ if (!canvas) {
     document.body.style.display = "flex";
     document.body.style.flexFlow = "column";
 
-    _parent = add("div", document.body);
+    div = add("div", document.body);
     // _parent.style.position = "relative";
 
     canvas = add("balder-canvas", document.body);

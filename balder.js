@@ -2,9 +2,8 @@
 // version 3.0 (2022-01-) 
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
-// export div ? 
-// id="balder-div", behöve ej - skapas bara om canvas skapas automatiskt?
-// balder-div as parent? export? -section - flex-direction...
+// div.clear() ? Behövs balder-div ändå? Annars funkar inte output som man tänkconsole.error();
+// Sätta elt i fokus vid add? 
 // Vector2D - Martins (och Felix´) exempel på en inspirationssida!!!!
 // Alla exempel på github?
 // Turtle - fill() (eller -path) 3.1?
@@ -963,7 +962,7 @@ export function shuffle(array) {
     }
     return array;
 }
-let _parent;
+export let div;
 export function add(tagName, arg1, arg2) {
     let elt;
     if (_outputElt) {
@@ -1019,7 +1018,7 @@ export function add(tagName, arg1, arg2) {
             elt = document.createElement(tagName);
         }
     }
-    let parent = _parent ?? document.body;
+    let parent = div ?? document.body;
     let before = null;
     let newline = true;
     if (arg2) {
@@ -1047,6 +1046,7 @@ export function add(tagName, arg1, arg2) {
         before = parent.insertBefore(document.createTextNode("\n"), before);
     }
     parent.insertBefore(elt, before);
+    elt.focus(); // 3.0
     return elt;
 }
 export function setLabel(labeledElement, text) {
@@ -1112,7 +1112,7 @@ if (!canvas) {
     document.body.style.height = "100%";
     document.body.style.display = "flex";
     document.body.style.flexFlow = "column";
-    _parent = add("div", document.body);
+    div = add("div", document.body);
     // _parent.style.position = "relative";
     canvas = add("balder-canvas", document.body);
     canvas.style.flex = "1";
