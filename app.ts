@@ -1,26 +1,26 @@
-import { add, circle, clear, debug, div, getPixel, input, keyboard, mouse, output, pixel, resetCanvas, setUpdate, sleep, Sprite, text } from "./balder.js";
+import { add, circle, clearDiv, input, keyboard, output, resetCanvas, setUpdate, sleep } from "./balder.js";
 
-let x = 100
+// while (1) {
+//     output(await input() + "!")
+// }
 
 
+output(123)
 
-setUpdate(() => {
-    circle(x, 100, 20)
+add("button", "456").onclick = () => {
+    output(456)
     
-    if (keyboard.d) {
-        keyboard.d = false
-        x++
-        div.innerHTML=""
-        output(x)
-    }
-    
-})
+}
 
 
-// let n = +await input("Ett heltal")
-// output(n ** 2)
+// let c = 0
+// output(c)
+// resetCanvas()
 
+// while (1) {
+//     output(c++)
 
-// add("button", "reload").onclick = () => {
-//     location.reload()
+//     await sleep(10)
+//     clearDiv()
+//     // div.innerHTML = ""
 // }

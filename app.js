@@ -1,17 +1,18 @@
-import { circle, div, keyboard, output, setUpdate } from "./balder.js";
-let x = 100;
-setUpdate(() => {
-    circle(x, 100, 20);
-    if (keyboard.d) {
-        keyboard.d = false;
-        x++;
-        div.innerHTML = "";
-        output(x);
-    }
-});
-// let n = +await input("Ett heltal")
-// output(n ** 2)
-// add("button", "reload").onclick = () => {
-//     location.reload()
+import { add, output } from "./balder.js";
+// while (1) {
+//     output(await input() + "!")
+// }
+output(123);
+add("button", "456").onclick = () => {
+    output(456);
+};
+// let c = 0
+// output(c)
+// resetCanvas()
+// while (1) {
+//     output(c++)
+//     await sleep(10)
+//     clearDiv()
+//     // div.innerHTML = ""
 // }
 //# sourceMappingURL=app.js.map

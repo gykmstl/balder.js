@@ -3,7 +3,12 @@
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
 
+
+// Behövs div export? Styling?
+
+// <div id=balder-div>
 // div.clear() ? Behövs balder-div ändå? Annars funkar inte output som man tänkconsole.error();
+// clearDiv()
 
 // Sätta elt i fokus vid add? 
 
@@ -1278,7 +1283,12 @@ interface _ExtraTagMap {
 
 export interface TagTypeMap extends HTMLElementTagNameMap, _ExtraTagMap { }     // ? TagNameMap BalderTagNameMap
 
-export let div: HTMLDivElement;
+let div: HTMLDivElement;
+
+export function clearDiv() {
+    div.innerHTML = ""
+    _outputElt = null;
+}
 
 export function add<K extends keyof TagTypeMap>(
     tagName: K
@@ -1321,7 +1331,7 @@ export function add<K extends keyof TagTypeMap>(
 ): TagTypeMap[K] {
     let elt: TagTypeMap[K];
 
-    if (_outputElt) {
+    if (_outputElt) {           // Rätt plats? Räcker med i input()?
         _outputValue += _outputElt.textContent!; 
         _outputElt = null;
     }

@@ -2,7 +2,10 @@
 // version 3.0 (2022-01-) 
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
+// Behövs div export? Styling?
+// <div id=balder-div>
 // div.clear() ? Behövs balder-div ändå? Annars funkar inte output som man tänkconsole.error();
+// clearDiv()
 // Sätta elt i fokus vid add? 
 // Vector2D - Martins (och Felix´) exempel på en inspirationssida!!!!
 // Alla exempel på github?
@@ -962,10 +965,14 @@ export function shuffle(array) {
     }
     return array;
 }
-export let div;
+let div;
+export function clearDiv() {
+    div.innerHTML = "";
+    _outputElt = null;
+}
 export function add(tagName, arg1, arg2) {
     let elt;
-    if (_outputElt) {
+    if (_outputElt) { // Rätt plats? Räcker med i input()?
         _outputValue += _outputElt.textContent;
         _outputElt = null;
     }
