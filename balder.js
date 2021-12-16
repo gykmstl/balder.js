@@ -2,10 +2,7 @@
 // version 3.0 (2022-01-) 
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
-// Behövs div export? Styling?
-// <div id=balder-div>
-// div.clear() ? Behövs balder-div ändå? Annars funkar inte output som man tänkconsole.error();
-// clearDiv()
+// canvas utan null? och div?
 // Sätta elt i fokus vid add? 
 // Vector2D - Martins (och Felix´) exempel på en inspirationssida!!!!
 // Alla exempel på github?
@@ -28,6 +25,12 @@ const _codes = new Set();
 const _keyboard = {};
 const _mouse = {};
 let _touched = null;
+// class BalderDiv extends HTMLDivElement {
+//     clear() {
+//         this.innerHTML = "";
+//         _outputElt = null;
+//     }
+// }
 class BalderCanvas extends HTMLCanvasElement {
     constructor() {
         super();
@@ -115,7 +118,10 @@ class BalderCanvas extends HTMLCanvasElement {
     }
 }
 customElements.define('balder-canvas', BalderCanvas, { extends: 'canvas' });
+// customElements.define('balder-div', BalderDiv, { extends: 'div' });             // ?
 export let canvas = document.querySelector("canvas[is=balder-canvas]"); // 3.0
+// export let div: BalderDiv
+export let div;
 const _initUpdateables = [];
 let _update = () => { };
 export function setUpdate(handler = () => { }) {
@@ -248,25 +254,25 @@ if (iParam != null) {
 window.addEventListener("load", () => {
     const oParam = params.get("o"); // output
     if (oParam != null) {
-        const div = add("div");
-        div.style.fontFamily = "monospace";
-        div.style.whiteSpace = "pre-wrap";
-        div.style.color = "black";
+        const resp = add("div");
+        resp.style.fontFamily = "monospace";
+        resp.style.whiteSpace = "pre-wrap";
+        resp.style.color = "black";
         const oValue = decodeURIComponent(oParam);
         _outputValue = _outputValue.trimEnd();
         if (_outputValue == oValue) {
-            div.style.backgroundColor = "palegreen";
-            div.textContent = _outputValue;
+            resp.style.backgroundColor = "palegreen";
+            resp.textContent = _outputValue;
         }
         else {
             let offset = 0;
             while (_outputValue[offset] == oValue[offset]) {
                 offset++;
             }
-            div.style.backgroundColor = "lightsalmon";
-            const match = add("span", oValue.slice(0, offset), { parent: div, newline: false });
+            resp.style.backgroundColor = "lightsalmon";
+            const match = add("span", oValue.slice(0, offset), { parent: resp, newline: false });
             match.style.backgroundColor = "palegreen";
-            add("span", oValue.slice(offset), div);
+            add("span", oValue.slice(offset), resp);
         }
     }
 });
@@ -964,11 +970,6 @@ export function shuffle(array) {
         [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
-}
-let div;
-export function clearDiv() {
-    div.innerHTML = "";
-    _outputElt = null;
 }
 export function add(tagName, arg1, arg2) {
     let elt;

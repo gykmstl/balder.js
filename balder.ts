@@ -3,12 +3,7 @@
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
 
-
-// Behövs div export? Styling?
-
-// <div id=balder-div>
-// div.clear() ? Behövs balder-div ändå? Annars funkar inte output som man tänkconsole.error();
-// clearDiv()
+// canvas utan null? och div?
 
 // Sätta elt i fokus vid add? 
 
@@ -44,6 +39,13 @@ const _codes = new Set<string>();
 const _keyboard: { [key: string]: boolean | null } = {};
 const _mouse: { [key: string]: boolean | null } = {};
 let _touched: boolean | null = null;
+
+// class BalderDiv extends HTMLDivElement {
+//     clear() {
+//         this.innerHTML = "";
+//         _outputElt = null;
+//     }
+// }
 
 class BalderCanvas extends HTMLCanvasElement {
     constructor() {
@@ -156,8 +158,11 @@ class BalderCanvas extends HTMLCanvasElement {
 }
 
 customElements.define('balder-canvas', BalderCanvas, { extends: 'canvas' });
+// customElements.define('balder-div', BalderDiv, { extends: 'div' });             // ?
 
 export let canvas: BalderCanvas | null = document.querySelector("canvas[is=balder-canvas]");        // 3.0
+// export let div: BalderDiv
+export let div: HTMLDivElement | null;
 
 const _initUpdateables: any[] = [];
 let _update = () => { };
@@ -328,27 +333,27 @@ window.addEventListener("load", () => {
 
     if (oParam != null) {
 
-        const div = add("div");
-        div.style.fontFamily = "monospace";
-        div.style.whiteSpace = "pre-wrap";
-        div.style.color = "black";
+        const resp = add("div");
+        resp.style.fontFamily = "monospace";
+        resp.style.whiteSpace = "pre-wrap";
+        resp.style.color = "black";
 
         const oValue = decodeURIComponent(oParam);
         _outputValue = _outputValue.trimEnd();
 
         if (_outputValue == oValue) {
-            div.style.backgroundColor = "palegreen";
-            div.textContent = _outputValue;
+            resp.style.backgroundColor = "palegreen";
+            resp.textContent = _outputValue;
         } else {
             let offset = 0;
             while (_outputValue[offset] == oValue[offset]) {
                 offset++
             }
 
-            div.style.backgroundColor = "lightsalmon";
-            const match = add("span", oValue.slice(0, offset), { parent: div, newline: false });
+            resp.style.backgroundColor = "lightsalmon";
+            const match = add("span", oValue.slice(0, offset), { parent: resp, newline: false });
             match.style.backgroundColor = "palegreen";
-            add("span", oValue.slice(offset), div);
+            add("span", oValue.slice(offset), resp);
         }
     }
 });
@@ -1278,17 +1283,16 @@ interface _ExtraTagMap {
     "input:time": HTMLInputElement;
     "input:url": HTMLInputElement;
     "input:week": HTMLInputElement;
+    // "balder-div": BalderDiv;
     "balder-canvas": BalderCanvas;
 }
 
 export interface TagTypeMap extends HTMLElementTagNameMap, _ExtraTagMap { }     // ? TagNameMap BalderTagNameMap
 
-let div: HTMLDivElement;
-
-export function clearDiv() {
-    div.innerHTML = ""
-    _outputElt = null;
-}
+// export function clearDiv() {        // ?
+//     div.innerHTML = ""
+//     _outputElt = null;
+// }
 
 export function add<K extends keyof TagTypeMap>(
     tagName: K

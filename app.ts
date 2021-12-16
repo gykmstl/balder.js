@@ -1,15 +1,14 @@
-import { add, circle, clearDiv, input, keyboard, output, resetCanvas, setUpdate, sleep } from "./balder.js";
-
-// while (1) {
-//     output(await input() + "!")
-// }
+import { add, canvas, circle, div, input, keyboard, output, resetCanvas, setUpdate, sleep } from "./balder.js";
 
 
-output(123)
+add("button", "111")
+add("button", "222")
+add("button", "333")
+resetCanvas()
+// div!.style.order = "1"
 
-add("button", "456").onclick = () => {
-    output(456)
-    
+onload = () => {
+    canvas?.focus()
 }
 
 
@@ -18,9 +17,10 @@ add("button", "456").onclick = () => {
 // resetCanvas()
 
 // while (1) {
-//     output(c++)
+//     output(++c)
 
-//     await sleep(10)
-//     clearDiv()
-//     // div.innerHTML = ""
+//     await sleep(100)
+//     //clearDiv()
+//     add("div")
+//     div!.innerHTML = ""
 // }
