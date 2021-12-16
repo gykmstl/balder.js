@@ -3,9 +3,7 @@
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
 
-// canvas utan null? och div?
-
-// Sätta elt i fokus vid add? 
+// addSVG i div?
 
 // Vector2D - Martins (och Felix´) exempel på en inspirationssida!!!!
 // Alla exempel på github?
@@ -40,13 +38,6 @@ const _keyboard: { [key: string]: boolean | null } = {};
 const _mouse: { [key: string]: boolean | null } = {};
 let _touched: boolean | null = null;
 
-// class BalderDiv extends HTMLDivElement {
-//     clear() {
-//         this.innerHTML = "";
-//         _outputElt = null;
-//     }
-// }
-
 class BalderCanvas extends HTMLCanvasElement {
     constructor() {
         super();
@@ -69,7 +60,7 @@ class BalderCanvas extends HTMLCanvasElement {
 
         this.addEventListener("mousedown", event => {
             event.preventDefault();
-            canvas!.focus();
+            canvas.focus();
 
             if (_mouse[event.button] !== false) {
                 _mouse[event.button] = true;
@@ -81,7 +72,7 @@ class BalderCanvas extends HTMLCanvasElement {
         });
 
         this.addEventListener("mousemove", event => {
-            const rect = canvas!.getBoundingClientRect();
+            const rect = canvas.getBoundingClientRect();
 
             mouse.x = (event.clientX - rect.left) * _scaleX;
             mouse.y = (event.clientY - rect.top) * _scaleY;
@@ -99,9 +90,9 @@ class BalderCanvas extends HTMLCanvasElement {
 
         function touchHandler(event: TouchEvent) {
             event.preventDefault();
-            canvas!.focus();
+            canvas.focus();
 
-            const rect = canvas!.getBoundingClientRect();
+            const rect = canvas.getBoundingClientRect();
             touchscreen.touches = [];
 
             if (_touched !== false) {
@@ -158,11 +149,8 @@ class BalderCanvas extends HTMLCanvasElement {
 }
 
 customElements.define('balder-canvas', BalderCanvas, { extends: 'canvas' });
-// customElements.define('balder-div', BalderDiv, { extends: 'div' });             // ?
 
-export let canvas: BalderCanvas | null = document.querySelector("canvas[is=balder-canvas]");        // 3.0
-// export let div: BalderDiv
-export let div: HTMLDivElement | null;
+export let canvas: BalderCanvas;     // 3.0
 
 const _initUpdateables: any[] = [];
 let _update = () => { };
@@ -208,7 +196,7 @@ window.onerror = (message) => {
     }
 };
 
-window.addEventListener("unhandledrejection", event => {
+window.addEventListener("unhandledrejection", event => {        // ?
     throw event.reason;
 });
 
@@ -216,31 +204,27 @@ export function resetCanvas() {
     _scaleX = 1;
     _scaleY = 1;
 
-    let W0 = parseInt(getComputedStyle(canvas!).width);
-    let H0 = parseInt(getComputedStyle(canvas!).height);
+    let W0 = parseInt(getComputedStyle(canvas).width);
+    let H0 = parseInt(getComputedStyle(canvas).height);
 
-    canvas!.width = 0;
-    canvas!.height = 0;
+    canvas.width = 0;
+    canvas.height = 0;
 
-
-    let W1 = parseInt(getComputedStyle(canvas!).width);
-    let H1 = parseInt(getComputedStyle(canvas!).height);
+    let W1 = parseInt(getComputedStyle(canvas).width);
+    let H1 = parseInt(getComputedStyle(canvas).height);
 
     W = W1 > 0 ? W1 : W0;
     H = H1 > 0 ? H1 : H0;
 
-    canvas!.width = W;
-    canvas!.height = H;
+    canvas.width = W;
+    canvas.height = H;
 }
 
 window.addEventListener("resize", () => {
-    if (canvas) {
-        _scaleX = W / canvas.getBoundingClientRect().width;
-        _scaleY = H / canvas.getBoundingClientRect().height;
-    }
+    _scaleX = W / canvas.getBoundingClientRect().width;
+    _scaleY = H / canvas.getBoundingClientRect().height;
 });
 
-// let _outputElt: HTMLOutputElement | null;
 let _outputElt: HTMLDivElement | null;
 let _inputLines: string[] = [];
 let _inputLineIndex = 0;
@@ -284,7 +268,6 @@ export async function input(prompt = "Prompt", value?: string): Promise<string> 
 }
 
 let _outputValue = "";      // 2.01
-
 
 export function output(...values: any[]): void;
 export function output(...args: [...values: any[], end: " "]): void;
@@ -332,7 +315,6 @@ window.addEventListener("load", () => {
     const oParam = params.get("o");        // output
 
     if (oParam != null) {
-
         const resp = add("div");
         resp.style.fontFamily = "monospace";
         resp.style.whiteSpace = "pre-wrap";
@@ -505,7 +487,7 @@ export function fill(style: Style = _bgcolor, x = 0, y = 0, width = W, height = 
 }
 
 //
-// Vector2D     Vector2
+// Vector2
 // 
 
 export class Vector2 {
@@ -870,7 +852,7 @@ export class Turtle {
     public penSize = 1;
 
     constructor(
-        public x = W / 2,      // 3.0 public?
+        public x = W / 2,      
         public y = H / 2,
         public heading = 0
     ) {
@@ -907,8 +889,8 @@ export class Turtle {
         }
 
         if (this.visible) {
-            this.turtleContainer.style.left = (canvas!.offsetLeft + (this.x - 10)) / _scaleX + "px";
-            this.turtleContainer.style.top = (canvas!.offsetTop + (this.y - 10)) / _scaleY + "px";
+            this.turtleContainer.style.left = (canvas.offsetLeft + (this.x - 10)) / _scaleX + "px";
+            this.turtleContainer.style.top = (canvas.offsetTop + (this.y - 10)) / _scaleY + "px";
         }
     }
 
@@ -1240,7 +1222,7 @@ export function range(a: number, b?: number, c: number = 1): number[] {
             r.push(i);
         }
     } else {
-        throw new RangeError("'by' must not be zero");      // ?
+        throw new RangeError("'by' must not be zero");      // ? 
     }
 
     return r;
@@ -1259,6 +1241,8 @@ export function shuffle<T>(array: T[]): T[] {
 //
 // GUI functions
 //
+
+export let div: HTMLDivElement | null;
 
 interface _ExtraTagMap {
     "input:button": HTMLInputElement;
@@ -1283,7 +1267,6 @@ interface _ExtraTagMap {
     "input:time": HTMLInputElement;
     "input:url": HTMLInputElement;
     "input:week": HTMLInputElement;
-    // "balder-div": BalderDiv;
     "balder-canvas": BalderCanvas;
 }
 
@@ -1336,7 +1319,7 @@ export function add<K extends keyof TagTypeMap>(
     let elt: TagTypeMap[K];
 
     if (_outputElt) {           // Rätt plats? Räcker med i input()?
-        _outputValue += _outputElt.textContent!; 
+        _outputValue += _outputElt.textContent!;
         _outputElt = null;
     }
 
@@ -1402,7 +1385,7 @@ export function add<K extends keyof TagTypeMap>(
         }
     }
 
-    if (tagName == "input:radio") {    
+    if (tagName == "input:radio") {
         (elt as HTMLInputElement).name =
             parent instanceof HTMLFieldSetElement ?
                 parent.querySelector("legend")?.textContent! :
@@ -1416,7 +1399,7 @@ export function add<K extends keyof TagTypeMap>(
     }
 
     parent.insertBefore(elt, before);
-    elt.focus();        // 3.0
+    elt.focus();        // ? 3.0
     return elt;
 }
 
@@ -1522,7 +1505,11 @@ export function debug(...values: any[]) {
     _debugElt.scrollTop = _debugElt.scrollHeight;
 }
 
-if (!canvas) {
+let _canvas: BalderCanvas | null = document.querySelector("canvas[is=balder-canvas]");        // 3.0
+
+if (_canvas) {
+    canvas = _canvas;
+} else {
     document.documentElement.style.height = "100%";
     document.documentElement.style.display = "flex";
     document.documentElement.style.flexFlow = "column";
@@ -1531,9 +1518,8 @@ if (!canvas) {
     document.body.style.flexFlow = "column";
 
     div = add("div", document.body);
-    // _parent.style.position = "relative";
-
     canvas = add("balder-canvas", document.body);
+
     canvas.style.flex = "1";
     resetCanvas();
 }

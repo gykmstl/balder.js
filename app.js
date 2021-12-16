@@ -1,20 +1,7 @@
-import { add, canvas, resetCanvas } from "./balder.js";
-add("button", "111");
-add("button", "222");
-add("button", "333");
+import { add, W, H, mouse, resetCanvas, setUpdate, str } from "./balder.js";
+let p = add("p", "---");
 resetCanvas();
-// div!.style.order = "1"
-onload = () => {
-    canvas?.focus();
-};
-// let c = 0
-// output(c)
-// resetCanvas()
-// while (1) {
-//     output(++c)
-//     await sleep(100)
-//     //clearDiv()
-//     add("div")
-//     div!.innerHTML = ""
-// }
+setUpdate(() => {
+    p.textContent = str(mouse) + " " + W + " " + H;
+});
 //# sourceMappingURL=app.js.map

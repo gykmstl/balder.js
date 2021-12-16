@@ -2,8 +2,7 @@
 // version 3.0 (2022-01-) 
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
-// canvas utan null? och div?
-// Sätta elt i fokus vid add? 
+// addSVG i div?
 // Vector2D - Martins (och Felix´) exempel på en inspirationssida!!!!
 // Alla exempel på github?
 // Turtle - fill() (eller -path) 3.1?
@@ -25,12 +24,6 @@ const _codes = new Set();
 const _keyboard = {};
 const _mouse = {};
 let _touched = null;
-// class BalderDiv extends HTMLDivElement {
-//     clear() {
-//         this.innerHTML = "";
-//         _outputElt = null;
-//     }
-// }
 class BalderCanvas extends HTMLCanvasElement {
     constructor() {
         super();
@@ -118,10 +111,7 @@ class BalderCanvas extends HTMLCanvasElement {
     }
 }
 customElements.define('balder-canvas', BalderCanvas, { extends: 'canvas' });
-// customElements.define('balder-div', BalderDiv, { extends: 'div' });             // ?
-export let canvas = document.querySelector("canvas[is=balder-canvas]"); // 3.0
-// export let div: BalderDiv
-export let div;
+export let canvas; // 3.0
 const _initUpdateables = [];
 let _update = () => { };
 export function setUpdate(handler = () => { }) {
@@ -174,12 +164,9 @@ export function resetCanvas() {
     canvas.height = H;
 }
 window.addEventListener("resize", () => {
-    if (canvas) {
-        _scaleX = W / canvas.getBoundingClientRect().width;
-        _scaleY = H / canvas.getBoundingClientRect().height;
-    }
+    _scaleX = W / canvas.getBoundingClientRect().width;
+    _scaleY = H / canvas.getBoundingClientRect().height;
 });
-// let _outputElt: HTMLOutputElement | null;
 let _outputElt;
 let _inputLines = [];
 let _inputLineIndex = 0;
@@ -379,7 +366,7 @@ export function fill(style = _bgcolor, x = 0, y = 0, width = W, height = H) {
     ctx.fillRect(x, y, width, height);
 }
 //
-// Vector2D     Vector2
+// Vector2
 // 
 export class Vector2 {
     x;
@@ -660,8 +647,7 @@ export class Turtle {
     // private path: [x: number, y: number][] = [];
     delay = 100;
     penSize = 1;
-    constructor(x = W / 2, // 3.0 public?
-    y = H / 2, heading = 0) {
+    constructor(x = W / 2, y = H / 2, heading = 0) {
         this.x = x;
         this.y = y;
         this.heading = heading;
@@ -960,7 +946,7 @@ export function range(a, b, c = 1) {
         }
     }
     else {
-        throw new RangeError("'by' must not be zero"); // ?
+        throw new RangeError("'by' must not be zero"); // ? 
     }
     return r;
 }
@@ -971,6 +957,10 @@ export function shuffle(array) {
     }
     return array;
 }
+//
+// GUI functions
+//
+export let div;
 export function add(tagName, arg1, arg2) {
     let elt;
     if (_outputElt) { // Rätt plats? Räcker med i input()?
@@ -1054,7 +1044,7 @@ export function add(tagName, arg1, arg2) {
         before = parent.insertBefore(document.createTextNode("\n"), before);
     }
     parent.insertBefore(elt, before);
-    elt.focus(); // 3.0
+    elt.focus(); // ? 3.0
     return elt;
 }
 export function setLabel(labeledElement, text) {
@@ -1113,7 +1103,11 @@ export function debug(...values) {
     add("option", values.map(v => str(v)).join(" "), _debugElt);
     _debugElt.scrollTop = _debugElt.scrollHeight;
 }
-if (!canvas) {
+let _canvas = document.querySelector("canvas[is=balder-canvas]"); // 3.0
+if (_canvas) {
+    canvas = _canvas;
+}
+else {
     document.documentElement.style.height = "100%";
     document.documentElement.style.display = "flex";
     document.documentElement.style.flexFlow = "column";
@@ -1121,7 +1115,6 @@ if (!canvas) {
     document.body.style.display = "flex";
     document.body.style.flexFlow = "column";
     div = add("div", document.body);
-    // _parent.style.position = "relative";
     canvas = add("balder-canvas", document.body);
     canvas.style.flex = "1";
     resetCanvas();
