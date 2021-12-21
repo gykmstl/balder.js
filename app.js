@@ -1,7 +1,5 @@
-import { add, W, H, mouse, resetCanvas, setUpdate, str } from "./balder.js";
-let p = add("p", "---");
+import { output, resetCanvas } from "./balder.js";
+let n = 1000000000n;
+output(n ** 200n);
 resetCanvas();
-setUpdate(() => {
-    p.textContent = str(mouse) + " " + W + " " + H;
-});
 //# sourceMappingURL=app.js.map

@@ -3,16 +3,38 @@
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
 
+
+// preload vs preloadImage, preloadsound
+// behövs ens preloadImage nu?
+
+// createIndexFrames baserat på setFrames?
+// setFrames direkt i konstruktorn?
+// behövs den senare? nej va?
+
+// ta bort style överallt. byt tillbaka till color? Jo enklare! Går ändp skapa avanacerat
+
+// cell.color enklare än style?
+
+// placeDiv() - "north", "south", "west"    Ev 3.1?
+// - flexDirection ? "row", "column", Nej
+
+// kolla scale - avrundingsfel 3.1
+
+
 // addSVG i div?
 
 // Vector2D - Martins (och Felix´) exempel på en inspirationssida!!!!
-// Alla exempel på github?
+// vector - scale? vs multiplyScalar vs multiply
+
+// Alla exempel på github? Eller skelamp?
+// API på github
 
 // Turtle - fill() (eller -path) 3.1?
 
 // Cell inner class?
 
 // record vs index signatures
+
 // kolla pixel() - bort? 3.1?
 
 
@@ -276,6 +298,7 @@ export function output(...args: any[]) {
         _outputElt = add("div");
         _outputElt.style.fontFamily = "monospace";
         _outputElt.style.whiteSpace = "pre-wrap";
+        _outputElt.style.wordWrap = "break-word";
     }
 
     if (args.length > 1 && /^\s*$/.test(args[args.length - 1])) {
@@ -318,6 +341,7 @@ window.addEventListener("load", () => {
         const resp = add("div");
         resp.style.fontFamily = "monospace";
         resp.style.whiteSpace = "pre-wrap";
+        resp.style.wordWrap = "break-word";
         resp.style.color = "black";
 
         const oValue = decodeURIComponent(oParam);
@@ -369,7 +393,8 @@ export function line(
 export function circle(
     x: number, y: number,
     radius: number,
-    style: Style = _color,
+    // style: Style = _color,
+    color = _color,
     lineWidth?: number
 ) {
     ctx.beginPath();
@@ -377,10 +402,10 @@ export function circle(
 
     if (lineWidth) {
         ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = style;
+        ctx.strokeStyle = color;
         ctx.stroke();
     } else {
-        ctx.fillStyle = style;
+        ctx.fillStyle = color;
         ctx.fill();
     }
 }
@@ -549,25 +574,30 @@ export class Vector2 {
         this.y *= s
     }
 
+    // public multiply(scalar: number) {
+    //     this.x *= scalar
+    //     this.y *= scalar
+    // }
+
     public clone() {
-
+        return new Vector2(this.x, this.y)
     }
 
-    public getDistance(v: Vector2) {    // To? get? // onödig ? == (subtract, length) nej 
+    // public getDistance(v: Vector2) {    // To? get? // onödig ? == (subtract, length) nej 
 
+    // }
+
+    static distance(v1: Vector2, v2: Vector2) {
+        return 0
     }
 
-    static distance() {
-
+    static distanceSquared(v1: Vector2, v2: Vector2) {
+        return 0
     }
 
-    static distanceSquared() {
-
-    }
-
-    public getDistanceSquared(v: Vector2) {
-        // distanceSquared
-    }
+    // public getDistanceSquared(v: Vector2) {
+    //     // distanceSquared
+    // }
 
     public dot(v: Vector2) {
 
@@ -634,8 +664,8 @@ export class Hitbox {
 
 export class Sprite extends Hitbox {
     public tag: any = {};
-    private _frames: number[] = [];
     private index = 0;
+    private frames: number[] = [];
     private counter = 0;
     public updatesPerFrame = 10;
     public loop = true;
@@ -685,7 +715,7 @@ export class Sprite extends Hitbox {
     }
 
     public setFrames(...value: number[]) {
-        this._frames = value;
+        this.frames = value;
         this.index = 0;
         this.counter = 0;
 
@@ -699,7 +729,7 @@ export class Sprite extends Hitbox {
     private initUpdate() {
         if (this.counter == (this.updatesPerFrame - 1)) {
             this.index++;
-            if (this.index == this._frames.length) {
+            if (this.index == this.frames.length) {
                 if (this.loop) {
                     this.index = 0;
                 } else {
@@ -720,8 +750,8 @@ export class Sprite extends Hitbox {
                 if (this.width == 0) this.width = frameWidth;
                 if (this.height == 0) this.height = frameHeight;
 
-                const sx = frameWidth * (this._frames[this.index] % this.columns);
-                const sy = frameHeight * Math.floor(this._frames[this.index] / this.columns);
+                const sx = frameWidth * (this.frames[this.index] % this.columns);
+                const sy = frameHeight * Math.floor(this.frames[this.index] / this.columns);
 
                 ctx.drawImage(
                     _images[this.path],
@@ -1270,12 +1300,7 @@ interface _ExtraTagMap {
     "balder-canvas": BalderCanvas;
 }
 
-export interface TagTypeMap extends HTMLElementTagNameMap, _ExtraTagMap { }     // ? TagNameMap BalderTagNameMap
-
-// export function clearDiv() {        // ?
-//     div.innerHTML = ""
-//     _outputElt = null;
-// }
+export interface TagTypeMap extends HTMLElementTagNameMap, _ExtraTagMap { }     // ? TagNameMap BalderTagNameMap - slå ihop snyggare
 
 export function add<K extends keyof TagTypeMap>(
     tagName: K
@@ -1400,6 +1425,7 @@ export function add<K extends keyof TagTypeMap>(
 
     parent.insertBefore(elt, before);
     elt.focus();        // ? 3.0
+
     return elt;
 }
 
@@ -1427,37 +1453,6 @@ export function getLabel(labeledElement: HTMLElement) {
 
     throw new Error("'labeledElement' is not labeled");
 }
-
-// export function setFixed(elt: HTMLElement, x = 0, y = 0, width?: number, height?: number) {
-//     elt.style.position = "absolute";
-//     elt.style.left = x + "px";
-//     elt.style.top = y + "px";
-//     if (width != null) elt.style.width = width + "px";
-//     if (height != null) elt.style.height = height + "px";
-// }
-
-// export function setSize(elt: HTMLElement, width?: number, height?: number) {
-//     elt.style.position = "absolute";
-//     elt.style.width = width + "px";
-//     elt.style.height = height + "px";
-// }
-
-// export function setPosition(elt: HTMLElement, x: number, y: number) {
-//     elt.style.position = "absolute";
-//     elt.style.left = x + "px";
-//     elt.style.top = y + "px";
-//     _parent.style.height = "200px"
-// }
-
-// export function setGeometry(elt: HTMLElement, x: number, y: number, width?: number, height?: number) {
-//     elt.style.position = "absolute";
-//     elt.style.left = x + "px";
-//     elt.style.top = y + "px";
-//     elt.style.boxSizing = "border-box";
-//     if (width != null) elt.style.width = width + "px";
-//     if (height != null) elt.style.height = height + "px";
-//     _parent.style.height = "200px"
-// }
 
 export function addSVG(tagName: "svg", attributes?: object, parent?: HTMLElement | SVGSVGElement): SVGSVGElement;
 export function addSVG(tagName: "svg", parent?: HTMLElement | SVGSVGElement): SVGSVGElement;

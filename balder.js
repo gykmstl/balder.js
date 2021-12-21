@@ -2,9 +2,21 @@
 // version 3.0 (2022-01-) 
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
+// preload vs preloadImage, preloadsound
+// behövs ens preloadImage nu?
+// createIndexFrames baserat på setFrames?
+// setFrames direkt i konstruktorn?
+// behövs den senare? nej va?
+// ta bort style överallt. byt tillbaka till color? Jo enklare! Går ändp skapa avanacerat
+// cell.color enklare än style?
+// placeDiv() - "north", "south", "west"    Ev 3.1?
+// - flexDirection ? "row", "column", Nej
+// kolla scale - avrundingsfel 3.1
 // addSVG i div?
 // Vector2D - Martins (och Felix´) exempel på en inspirationssida!!!!
-// Alla exempel på github?
+// vector - scale? vs multiplyScalar vs multiply
+// Alla exempel på github? Eller skelamp?
+// API på github
 // Turtle - fill() (eller -path) 3.1?
 // Cell inner class?
 // record vs index signatures
@@ -208,6 +220,7 @@ export function output(...args) {
         _outputElt = add("div");
         _outputElt.style.fontFamily = "monospace";
         _outputElt.style.whiteSpace = "pre-wrap";
+        _outputElt.style.wordWrap = "break-word";
     }
     if (args.length > 1 && /^\s*$/.test(args[args.length - 1])) {
         _outputElt.textContent += args.slice(0, -1).map(v => str(v)).join(" ");
@@ -244,6 +257,7 @@ window.addEventListener("load", () => {
         const resp = add("div");
         resp.style.fontFamily = "monospace";
         resp.style.whiteSpace = "pre-wrap";
+        resp.style.wordWrap = "break-word";
         resp.style.color = "black";
         const oValue = decodeURIComponent(oParam);
         _outputValue = _outputValue.trimEnd();
@@ -275,16 +289,18 @@ export function line(x1, y1, x2, y2, style = _color, lineWidth = 1) {
     ctx.lineWidth = lineWidth;
     ctx.stroke();
 }
-export function circle(x, y, radius, style = _color, lineWidth) {
+export function circle(x, y, radius, 
+// style: Style = _color,
+color = _color, lineWidth) {
     ctx.beginPath();
     ctx.ellipse(x, y, radius, radius, 0, 0, 2 * Math.PI);
     if (lineWidth) {
         ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = style;
+        ctx.strokeStyle = color;
         ctx.stroke();
     }
     else {
-        ctx.fillStyle = style;
+        ctx.fillStyle = color;
         ctx.fill();
     }
 }
@@ -411,17 +427,24 @@ export class Vector2 {
         this.x *= s;
         this.y *= s;
     }
+    // public multiply(scalar: number) {
+    //     this.x *= scalar
+    //     this.y *= scalar
+    // }
     clone() {
+        return new Vector2(this.x, this.y);
     }
-    getDistance(v) {
+    // public getDistance(v: Vector2) {    // To? get? // onödig ? == (subtract, length) nej 
+    // }
+    static distance(v1, v2) {
+        return 0;
     }
-    static distance() {
+    static distanceSquared(v1, v2) {
+        return 0;
     }
-    static distanceSquared() {
-    }
-    getDistanceSquared(v) {
-        // distanceSquared
-    }
+    // public getDistanceSquared(v: Vector2) {
+    //     // distanceSquared
+    // }
     dot(v) {
     }
     // public negate() {
@@ -471,8 +494,8 @@ export class Sprite extends Hitbox {
     rows;
     columns;
     tag = {};
-    _frames = [];
     index = 0;
+    frames = [];
     counter = 0;
     updatesPerFrame = 10;
     loop = true;
@@ -510,7 +533,7 @@ export class Sprite extends Hitbox {
         });
     }
     setFrames(...value) {
-        this._frames = value;
+        this.frames = value;
         this.index = 0;
         this.counter = 0;
         if (value.length > 1 && !_initUpdateables.includes(this)) {
@@ -523,7 +546,7 @@ export class Sprite extends Hitbox {
     initUpdate() {
         if (this.counter == (this.updatesPerFrame - 1)) {
             this.index++;
-            if (this.index == this._frames.length) {
+            if (this.index == this.frames.length) {
                 if (this.loop) {
                     this.index = 0;
                 }
@@ -543,8 +566,8 @@ export class Sprite extends Hitbox {
                     this.width = frameWidth;
                 if (this.height == 0)
                     this.height = frameHeight;
-                const sx = frameWidth * (this._frames[this.index] % this.columns);
-                const sy = frameHeight * Math.floor(this._frames[this.index] / this.columns);
+                const sx = frameWidth * (this.frames[this.index] % this.columns);
+                const sy = frameHeight * Math.floor(this.frames[this.index] / this.columns);
                 ctx.drawImage(_images[this.path], sx, sy, frameWidth, frameHeight, this.x, this.y, this.width, this.height);
                 resolve();
             };

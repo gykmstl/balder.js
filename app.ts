@@ -1,9 +1,6 @@
-import { add, canvas, circle, div, fill, W, H, input, keyboard, mouse, output, resetCanvas, setUpdate, sleep, str } from "./balder.js";
+import { output, resetCanvas } from "./balder.js";
 
+let n = 1000000000n
+output(n ** 200n)
 
-let p = add("p", "---")
 resetCanvas()
-
-setUpdate(() => {
-    p.textContent = str(mouse) + " " + W + " " + H 
-})
