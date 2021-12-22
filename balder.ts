@@ -4,22 +4,12 @@
 // Baldergymnasiet, Skellefteå, Sweden
 
 
-// preload vs preloadImage, preloadsound
-// behövs ens preloadImage nu?
 
 // createIndexFrames baserat på setFrames?
-// setFrames direkt i konstruktorn?
-// behövs den senare? nej va?
 
 // ta bort style överallt. byt tillbaka till color? Jo enklare! Går ändp skapa avanacerat
 
 // cell.color enklare än style?
-
-// placeDiv() - "north", "south", "west"    Ev 3.1?
-// - flexDirection ? "row", "column", Nej
-
-// kolla scale - avrundingsfel 3.1
-
 
 // addSVG i div?
 
@@ -665,7 +655,7 @@ export class Hitbox {
 export class Sprite extends Hitbox {
     public tag: any = {};
     private index = 0;
-    private frames: number[] = [];
+    private _frames: number[] = [];
     private counter = 0;
     public updatesPerFrame = 10;
     public loop = true;
@@ -674,11 +664,18 @@ export class Sprite extends Hitbox {
     constructor(
         private path: string,
         private rows = 1,
-        private columns = 1
+        private columns = 1,
+        ...frames: number[]
     ) {
         super(0, 0, 0, 0);
-        this.setFrames(...range(rows * columns));
 
+        if (frames.length > 0) {
+            this._frames = frames;
+        } else {
+            this._frames = range(rows * columns);
+        }
+
+        _initUpdateables.push(this);
         preloadImage(path);
     }
 
@@ -686,7 +683,7 @@ export class Sprite extends Hitbox {
         const _frameCanvas = document.createElement("canvas");
         const _frameCtx = _frameCanvas.getContext("2d")!;
 
-        await new Promise<void>((resolve, reject) => {
+        await new Promise<void>((resolve, reject) => {          // reject ?
             const _setIndexes = () => {
                 const frameWidth = _images[this.path].width / this.columns;
                 const frameHeight = _images[this.path].height / this.rows;
@@ -714,22 +711,10 @@ export class Sprite extends Hitbox {
         });
     }
 
-    public setFrames(...value: number[]) {
-        this.frames = value;
-        this.index = 0;
-        this.counter = 0;
-
-        if (value.length > 1 && !_initUpdateables.includes(this)) {
-            _initUpdateables.push(this);
-        } else if (value.length == 1 && _initUpdateables.includes(this)) {
-            _initUpdateables.splice(_initUpdateables.indexOf(this), 1);
-        }
-    }
-
     private initUpdate() {
         if (this.counter == (this.updatesPerFrame - 1)) {
             this.index++;
-            if (this.index == this.frames.length) {
+            if (this.index == this._frames.length) {
                 if (this.loop) {
                     this.index = 0;
                 } else {
@@ -750,8 +735,8 @@ export class Sprite extends Hitbox {
                 if (this.width == 0) this.width = frameWidth;
                 if (this.height == 0) this.height = frameHeight;
 
-                const sx = frameWidth * (this.frames[this.index] % this.columns);
-                const sy = frameHeight * Math.floor(this.frames[this.index] / this.columns);
+                const sx = frameWidth * (this._frames[this.index] % this.columns);
+                const sy = frameHeight * Math.floor(this._frames[this.index] / this.columns);
 
                 ctx.drawImage(
                     _images[this.path],
@@ -971,7 +956,8 @@ export class Turtle {
 export class Cell {
     public tag: any = {};
 
-    private _style: Style | null = null;
+    // private _style: Style | null = null;
+    private _color: string | null = null;
     private _image: string | null = null;
     private _custom: ((cell: Cell) => void) | null = null;
 
@@ -990,12 +976,12 @@ export class Cell {
         return this._grid as Grid;
     }
 
-    public get style() {
-        return this._style;
+    public get color() {
+        return this._color;
     }
 
-    public set style(value: Style | null) {
-        this._style = value;
+    public set color(value: string | null) {
+        this._color = value;
         this.draw();
     }
 
@@ -1020,14 +1006,16 @@ export class Cell {
     public async draw(): Promise<void> {
         clear(this.x, this.y, this.width, this.height);
 
-        if (this._style) {
-            fill(this._style, this.x, this.y, this.width, this.height);
+        if (this._color) {
+            fill(this._color, this.x, this.y, this.width, this.height);
         }
+
+        debug(this._image)
 
         if (this._image) {
             await image(this._image, this.x, this.y, this.width, this.height);
-        }
-
+        } 
+ 
         if (this._custom) {
             this._custom(this);
         }
@@ -1183,8 +1171,8 @@ export function rgba(red: number, green: number, blue: number, alpha = 1): strin
     return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
 }
 
-export function hsla(hue: number, saturation: number, light: number, alpha = 1): string {   // TODO, units?
-    return `hsla(${hue}, ${saturation}%, ${light}%, ${alpha})`;
+export function hsla(degHue: number, pctSaturation = 100, pctLight = 50, alpha = 1): string {  
+    return `hsla(${degHue}, ${pctSaturation}%, ${pctLight}%, ${alpha})`;
 }
 
 export function getPixel(x: number, y: number) {

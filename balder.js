@@ -2,16 +2,9 @@
 // version 3.0 (2022-01-) 
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
-// preload vs preloadImage, preloadsound
-// behövs ens preloadImage nu?
 // createIndexFrames baserat på setFrames?
-// setFrames direkt i konstruktorn?
-// behövs den senare? nej va?
 // ta bort style överallt. byt tillbaka till color? Jo enklare! Går ändp skapa avanacerat
 // cell.color enklare än style?
-// placeDiv() - "north", "south", "west"    Ev 3.1?
-// - flexDirection ? "row", "column", Nej
-// kolla scale - avrundingsfel 3.1
 // addSVG i div?
 // Vector2D - Martins (och Felix´) exempel på en inspirationssida!!!!
 // vector - scale? vs multiplyScalar vs multiply
@@ -495,16 +488,22 @@ export class Sprite extends Hitbox {
     columns;
     tag = {};
     index = 0;
-    frames = [];
+    _frames = [];
     counter = 0;
     updatesPerFrame = 10;
     loop = true;
-    constructor(path, rows = 1, columns = 1) {
+    constructor(path, rows = 1, columns = 1, ...frames) {
         super(0, 0, 0, 0);
         this.path = path;
         this.rows = rows;
         this.columns = columns;
-        this.setFrames(...range(rows * columns));
+        if (frames.length > 0) {
+            this._frames = frames;
+        }
+        else {
+            this._frames = range(rows * columns);
+        }
+        _initUpdateables.push(this);
         preloadImage(path);
     }
     async createIndexedImages() {
@@ -532,21 +531,10 @@ export class Sprite extends Hitbox {
             }
         });
     }
-    setFrames(...value) {
-        this.frames = value;
-        this.index = 0;
-        this.counter = 0;
-        if (value.length > 1 && !_initUpdateables.includes(this)) {
-            _initUpdateables.push(this);
-        }
-        else if (value.length == 1 && _initUpdateables.includes(this)) {
-            _initUpdateables.splice(_initUpdateables.indexOf(this), 1);
-        }
-    }
     initUpdate() {
         if (this.counter == (this.updatesPerFrame - 1)) {
             this.index++;
-            if (this.index == this.frames.length) {
+            if (this.index == this._frames.length) {
                 if (this.loop) {
                     this.index = 0;
                 }
@@ -566,8 +554,8 @@ export class Sprite extends Hitbox {
                     this.width = frameWidth;
                 if (this.height == 0)
                     this.height = frameHeight;
-                const sx = frameWidth * (this.frames[this.index] % this.columns);
-                const sy = frameHeight * Math.floor(this.frames[this.index] / this.columns);
+                const sx = frameWidth * (this._frames[this.index] % this.columns);
+                const sy = frameHeight * Math.floor(this._frames[this.index] / this.columns);
                 ctx.drawImage(_images[this.path], sx, sy, frameWidth, frameHeight, this.x, this.y, this.width, this.height);
                 resolve();
             };
@@ -747,7 +735,8 @@ export class Cell {
     width;
     height;
     tag = {};
-    _style = null;
+    // private _style: Style | null = null;
+    _color = null;
     _image = null;
     _custom = null;
     constructor(_grid, row, column, x, y, width, height) {
@@ -762,11 +751,11 @@ export class Cell {
     get grid() {
         return this._grid;
     }
-    get style() {
-        return this._style;
+    get color() {
+        return this._color;
     }
-    set style(value) {
-        this._style = value;
+    set color(value) {
+        this._color = value;
         this.draw();
     }
     get image() {
@@ -785,9 +774,10 @@ export class Cell {
     }
     async draw() {
         clear(this.x, this.y, this.width, this.height);
-        if (this._style) {
-            fill(this._style, this.x, this.y, this.width, this.height);
+        if (this._color) {
+            fill(this._color, this.x, this.y, this.width, this.height);
         }
+        debug(this._image);
         if (this._image) {
             await image(this._image, this.x, this.y, this.width, this.height);
         }
@@ -918,8 +908,8 @@ export function fromPolar(radius, degAngle, x0 = 0, y0 = 0) {
 export function rgba(red, green, blue, alpha = 1) {
     return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
 }
-export function hsla(hue, saturation, light, alpha = 1) {
-    return `hsla(${hue}, ${saturation}%, ${light}%, ${alpha})`;
+export function hsla(degHue, pctSaturation = 100, pctLight = 50, alpha = 1) {
+    return `hsla(${degHue}, ${pctSaturation}%, ${pctLight}%, ${alpha})`;
 }
 export function getPixel(x, y) {
     const data = ctx.getImageData(x, y, 1, 1).data;
