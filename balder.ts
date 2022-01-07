@@ -3,27 +3,27 @@
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
 
+// slå ihop add med addsvg?
+
+// skapa enkel "balderjs"-sida för testning?
+// bygga ihop med api-exempel?
+// kopiera o flytta till vs-code (app.ts)?
 
 
-// createIndexFrames baserat på setFrames?
+// ...from "../balder.js"
+// ta bort "balder.ts" från mallen? rot
+// import "balder" from npm
 
-// ta bort style överallt. byt tillbaka till color? Jo enklare! Går ändp skapa avanacerat
-
-// cell.color enklare än style?
+// skapa mall - bygg upp flera projekt i samma 
 
 // addSVG i div?
 
-// Vector2D - Martins (och Felix´) exempel på en inspirationssida!!!!
-// vector - scale? vs multiplyScalar vs multiply
-
+// Vector2 - Martins (och Felix´) exempel på en inspirationssida!!!!
 // Alla exempel på github? Eller skelamp?
+
 // API på github
 
 // Turtle - fill() (eller -path) 3.1?
-
-// Cell inner class?
-
-// record vs index signatures
 
 // kolla pixel() - bort? 3.1?
 
@@ -241,26 +241,27 @@ let _outputElt: HTMLDivElement | null;
 let _inputLines: string[] = [];
 let _inputLineIndex = 0;
 
-export async function input(prompt = "Prompt", value?: string): Promise<string> {
+export function input(prompt = "Prompt", defaultValue?: string): Promise<string> {
     let inputElt = add("input", prompt);
-    inputElt.parentElement!.style.display = "block";
+
+    inputElt.parentElement!.style.display = "flex";
     inputElt.parentElement!.style.fontFamily = "monospace";
     inputElt.style.fontFamily = "inherit";
     inputElt.style.backgroundColor = "inherit";
     inputElt.style.color = "inherit";
+    // inputElt.style.boxSizing = "border-box";
 
-    inputElt.style.boxSizing = "border-box";
-    inputElt.style.width = "100%";
-
-    if (value) {
-        inputElt.value = value;
+    if (defaultValue) {
+        inputElt.value = defaultValue;
         inputElt.select();
     }
 
+    // resetCanvas();      // 3.0 ?
     inputElt.focus();    // 3.0? 
 
-    return await new Promise<string>((resolve) => {
+    return new Promise<string>((resolve) => {     // reject?
         let line = _inputLines[_inputLineIndex++];
+
         if (line) {
             resolve(line);
             inputElt.value = line;
@@ -276,7 +277,9 @@ export async function input(prompt = "Prompt", value?: string): Promise<string> 
                 inputElt.disabled = true;
             }
         })
-    }).catch(() => { throw new Error() })       // reject?
+    });
+
+    // }).catch(() => { throw new Error() })       // reject?
 }
 
 let _outputValue = "";      // 2.01
@@ -298,6 +301,8 @@ export function output(...args: any[]) {
         _outputElt.textContent += args.map(v => str(v)).join(" ");
         _outputElt.textContent += "\n";
     }
+
+    // resetCanvas(); // 3.0 ?
 }
 
 export function str(value: any): string {
@@ -359,23 +364,22 @@ window.addEventListener("load", () => {
 // Drawing functions
 //
 
-export type Style = string | CanvasGradient | CanvasPattern;
-
-export function pixel(x: number, y: number, color = _color) {           // 3.0 ?
-    ctx.fillStyle = color;
-    ctx.fillRect(x, y, 1, 1);
-}
+// export function pixel(x: number, y: number, color = _color) {           // 3.0 ?
+//     ctx.fillStyle = color;
+//     ctx.fillRect(x, y, 1, 1);
+// }
 
 export function line(
     x1: number, y1: number,
     x2: number, y2: number,
-    style: Style = _color,
+    color = _color,
+    // style: Style = _color,
     lineWidth = 1
 ) {
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
-    ctx.strokeStyle = style;
+    ctx.strokeStyle = color;
     ctx.lineWidth = lineWidth;
     ctx.stroke();
 }
@@ -383,7 +387,6 @@ export function line(
 export function circle(
     x: number, y: number,
     radius: number,
-    // style: Style = _color,
     color = _color,
     lineWidth?: number
 ) {
@@ -404,15 +407,15 @@ export function rectangle(
     x: number, y: number,
     width: number,
     height: number,
-    style: Style = _color,
+    color = _color,
     lineWidth?: number
 ) {
     if (lineWidth) {
         ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = style;
+        ctx.strokeStyle = color;
         ctx.strokeRect(x, y, width, height);
     } else {
-        ctx.fillStyle = style;
+        ctx.fillStyle = color;
         ctx.fillRect(x, y, width, height);
     }
 }
@@ -421,7 +424,7 @@ export function triangle(
     x1: number, y1: number,
     x2: number, y2: number,
     x3: number, y3: number,
-    style: Style = _color,
+    color = _color,
     lineWidth?: number
 ) {
     ctx.beginPath();
@@ -432,10 +435,10 @@ export function triangle(
 
     if (lineWidth) {
         ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = style;
+        ctx.strokeStyle = color;
         ctx.stroke();
     } else {
-        ctx.fillStyle = style;
+        ctx.fillStyle = color;
         ctx.fill();
     }
 }
@@ -444,7 +447,7 @@ export function text(
     value: any,
     x = 0, y = 24,
     font: number | string = 24,
-    style: Style = _color,
+    color = _color,
     lineWidth?: number
 ) {
     if (typeof font == "number") {
@@ -455,18 +458,19 @@ export function text(
 
     if (lineWidth) {
         ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = style;
+        ctx.strokeStyle = color;
         ctx.strokeText(str(value), x, y);
     } else {
-        ctx.fillStyle = style;
+        ctx.fillStyle = color;
         ctx.fillText(str(value), x, y);
     }
 }
 
-let _images: any = [];      // Array of Images ?
+let _images: any = [];
+// let _images: Record<string, HTMLImageElement>;      // Array of Images ? record
 
-export async function preloadImage(path: string): Promise<void> {
-    await new Promise<void>((resolve, reject) => {
+function _loadImage(path: string): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
         if (_images[path] === undefined) {
             _images[path] = new Image();
             _images[path].src = path;
@@ -483,7 +487,7 @@ export async function preloadImage(path: string): Promise<void> {
 }
 
 export async function image(path: string, x = 0, y = 0, width?: number, height = width): Promise<void> {
-    await preloadImage(path);
+    await _loadImage(path);
 
     if (width) {
         ctx.drawImage(_images[path], x, y, width, height!);
@@ -496,20 +500,17 @@ export function clear(x = 0, y = 0, width = W, height = H) {
     ctx.clearRect(x, y, width, height);
 }
 
-export function fill(style: Style = _bgcolor, x = 0, y = 0, width = W, height = H) {
-    ctx.fillStyle = style;
+export function fill(color = _bgcolor, x = 0, y = 0, width = W, height = H) {
+    ctx.fillStyle = color;
     ctx.fillRect(x, y, width, height);
 }
+
 
 //
 // Vector2
 // 
 
 export class Vector2 {
-
-    // chaining
-    // Vector2D.add()
-
     constructor(
         public x: number,
         public y: number
@@ -520,93 +521,77 @@ export class Vector2 {
         return new Vector2(Math.cos(angle) * length, Math.sin(angle) * length)
     }
 
-    public get length() {
+    get length() {
         return Math.hypot(this.x, this.y);
     }
 
-    public set length(value: number) {
-
+    set length(value: number) {
+        const angle = this.angle;
+        this.x = value * Math.cos(angle);
+        this.y = value * Math.sin(angle);
     }
 
-    public get lengthSquared() {
-        return this.x ** 2 + this.y ** 2;
-    }
+    // public get lengthSquared() {
+    //     return this.x ** 2 + this.y ** 2;
+    // }
 
-    public get angle() {
+    get angle() {
         return Math.atan2(this.y, this.x)
     }
 
-    public set angle(value: number) {
-        this.x = Math.cos(value);
-        this.y = Math.sin(value);
+    set angle(value: number) {
+        const length = this.length;
+        this.x = length * Math.cos(value);
+        this.y = length * Math.sin(value);
     }
 
-    public add(v: Vector2) {
+    clone() {
+        return new Vector2(this.x, this.y)
+    }
+
+    add(v: Vector2) {
         this.x += v.x
         this.y += v.y
     }
 
-    public subtract(v: Vector2) {
+    subtract(v: Vector2) {
         this.x -= v.x
         this.y -= v.y
     }
 
-    public multiply(v: Vector2) {
-
+    multiply(v: Vector2) {
+        this.x *= v.x;
+        this.y *= v.y;
     }
 
-    public divide(v: Vector2) {
-
+    divide(v: Vector2) {
+        this.x /= v.x;
+        this.y /= v.y;
     }
 
-    public scalarMultiply(s: number) {
+    scalarMultiply(s: number) {
         this.x *= s
         this.y *= s
     }
 
-    // public multiply(scalar: number) {
-    //     this.x *= scalar
-    //     this.y *= scalar
+    // static distance(v1: Vector2, v2: Vector2) {
+    //     return Math.hypot(v2.x - v1.x, v2.y - v1.y)
     // }
 
-    public clone() {
-        return new Vector2(this.x, this.y)
+    distanceTo(v: Vector2) {
+        return Math.hypot(this.x - v.x, this.y - v.y)
     }
 
-    // public getDistance(v: Vector2) {    // To? get? // onödig ? == (subtract, length) nej 
-
+    // static distanceSquared(v1: Vector2, v2: Vector2) {      // ?
+    //     return (v2.x - v1.x) ** 2 + (v2.y - v1.y) ** 2
     // }
 
-    static distance(v1: Vector2, v2: Vector2) {
-        return 0
+    dot(v: Vector2) {
+        return this.x * v.x + this.y * v.y;
     }
 
-    static distanceSquared(v1: Vector2, v2: Vector2) {
-        return 0
-    }
-
-    // public getDistanceSquared(v: Vector2) {
-    //     // distanceSquared
-    // }
-
-    public dot(v: Vector2) {
-
-    }
-
-    // public negate() {
-
-    // }
-
-    public normalize() {        // d ?
-
-    }
-
-    // public random() {       // Behövs ej? randomangle, unit vector
-
-    // }
-
-    public rotate(angle: number) {
-
+    toString() {
+        return `(${this.x}, ${this.y})`;
     }
 }
 
@@ -653,62 +638,25 @@ export class Hitbox {
 //
 
 export class Sprite extends Hitbox {
-    public tag: any = {};
     private index = 0;
     private _frames: number[] = [];
     private counter = 0;
-    public updatesPerFrame = 10;
-    public loop = true;
-    [key: number]: string;      // 3.0 
+
+    updatesPerFrame = 10;
+    loop = true;
+    tag: any = {};
 
     constructor(
-        private path: string,
+        private spritesheetPath: string,
         private rows = 1,
         private columns = 1,
         ...frames: number[]
     ) {
         super(0, 0, 0, 0);
 
-        if (frames.length > 0) {
-            this._frames = frames;
-        } else {
-            this._frames = range(rows * columns);
-        }
+        this._frames = frames.length ? frames : range(rows * columns);
 
         _initUpdateables.push(this);
-        preloadImage(path);
-    }
-
-    public async createIndexedImages(): Promise<void> {
-        const _frameCanvas = document.createElement("canvas");
-        const _frameCtx = _frameCanvas.getContext("2d")!;
-
-        await new Promise<void>((resolve, reject) => {          // reject ?
-            const _setIndexes = () => {
-                const frameWidth = _images[this.path].width / this.columns;
-                const frameHeight = _images[this.path].height / this.rows;
-
-                _frameCanvas.width = frameWidth;
-                _frameCanvas.height = frameHeight;
-
-                for (let i = 0; i < this.rows; i++) {
-                    for (let j = 0; j < this.columns; j++) {
-                        _frameCtx.drawImage(_images[this.path],
-                            j * frameWidth, i * frameHeight, frameWidth, frameHeight,
-                            0, 0, frameWidth, frameHeight)
-                        this[i * this.columns + j] = _frameCanvas.toDataURL("image/png");
-                    }
-                }
-
-                resolve()
-            }
-
-            if (_images[this.path].complete) {
-                _setIndexes();
-            } else {
-                _images[this.path].addEventListener("load", _setIndexes);
-            }
-        });
     }
 
     private initUpdate() {
@@ -726,35 +674,25 @@ export class Sprite extends Hitbox {
         this.counter = (this.counter + 1) % this.updatesPerFrame;
     }
 
-    public async draw(): Promise<void> {
-        await new Promise<void>((resolve, reject) => {
-            const draw = () => {
-                const frameWidth = _images[this.path].width / this.columns;
-                const frameHeight = _images[this.path].height / this.rows;
+    async draw(): Promise<void> {
+        await _loadImage(this.spritesheetPath);
 
-                if (this.width == 0) this.width = frameWidth;
-                if (this.height == 0) this.height = frameHeight;
+        const frameWidth = _images[this.spritesheetPath].width / this.columns;
+        const frameHeight = _images[this.spritesheetPath].height / this.rows;
 
-                const sx = frameWidth * (this._frames[this.index] % this.columns);
-                const sy = frameHeight * Math.floor(this._frames[this.index] / this.columns);
+        if (this.width == 0) this.width = frameWidth;
+        if (this.height == 0) this.height = frameHeight;
 
-                ctx.drawImage(
-                    _images[this.path],
-                    sx, sy,
-                    frameWidth, frameHeight,
-                    this.x, this.y,
-                    this.width, this.height
-                );
+        const sx = frameWidth * (this._frames[this.index] % this.columns);
+        const sy = frameHeight * Math.floor(this._frames[this.index] / this.columns);
 
-                resolve();
-            }
-
-            if (_images[this.path].complete) {
-                draw();
-            } else {
-                _images[this.path].addEventListener("load", draw);
-            }
-        });
+        ctx.drawImage(
+            _images[this.spritesheetPath],
+            sx, sy,
+            frameWidth, frameHeight,
+            this.x, this.y,
+            this.width, this.height
+        );
     }
 }
 
@@ -863,11 +801,11 @@ export class Turtle {
     private visible = true;
     // private path: [x: number, y: number][] = [];
 
-    public delay = 100;
-    public penSize = 1;
+    delay = 100;
+    penSize = 1;
 
     constructor(
-        public x = W / 2,      
+        public x = W / 2,
         public y = H / 2,
         public heading = 0
     ) {
@@ -954,12 +892,11 @@ export class Turtle {
 //
 
 export class Cell {
-    public tag: any = {};
-
-    // private _style: Style | null = null;
     private _color: string | null = null;
     private _image: string | null = null;
     private _custom: ((cell: Cell) => void) | null = null;
+
+    tag: any = {};
 
     constructor(
         private _grid: _Grid,
@@ -972,50 +909,48 @@ export class Cell {
     ) {
     }
 
-    public get grid() {
+    get grid() {
         return this._grid as Grid;
     }
 
-    public get color() {
+    get color() {
         return this._color;
     }
 
-    public set color(value: string | null) {
+    set color(value: string | null) {
         this._color = value;
         this.draw();
     }
 
-    public get image() {
+    get image() {
         return this._image;
     }
 
-    public set image(value: string | null) {
+    set image(value: string | null) {
         this._image = value;
         this.draw();
     }
 
-    public get custom() {
+    get custom() {
         return this._custom;
     }
 
-    public set custom(value: ((cell: Cell) => void) | null) {
+    set custom(value: ((cell: Cell) => void) | null) {
         this._custom = value;
         this.draw();
     }
 
-    public async draw(): Promise<void> {
+    async draw(): Promise<void> {
         clear(this.x, this.y, this.width, this.height);
 
         if (this._color) {
             fill(this._color, this.x, this.y, this.width, this.height);
         }
 
-        debug(this._image)
-
         if (this._image) {
             await image(this._image, this.x, this.y, this.width, this.height);
-        } 
- 
+        }
+
         if (this._custom) {
             this._custom(this);
         }
@@ -1048,6 +983,7 @@ class _Grid {
 export class Grid extends _Grid {
     private activatable = true;
     private _activeCell: Cell | null = null;
+
     readonly [row: number]: { readonly [column: number]: Cell; };
 
     constructor(
@@ -1057,14 +993,14 @@ export class Grid extends _Grid {
         private y = 0,
         private width = W - 2 * x,
         private height = H - 2 * y,
-        private style: Style = _color,
+        private color = _color,
         private lineWidth = 1
     ) {
         super(rows, columns, x, y, width, height, lineWidth);
         this.draw();
     }
 
-    public get activated(): boolean {
+    get activated(): boolean {
         if (_mouse[0] || _touched) {
             if (this.activatable) {
                 let x = touchscreen.x;
@@ -1087,11 +1023,11 @@ export class Grid extends _Grid {
         return false;
     }
 
-    public get activeCell(): Cell | null {
+    get activeCell(): Cell | null {
         return this._activeCell;
     }
 
-    public getCell(x: number, y: number): Cell | null {
+    getCell(x: number, y: number): Cell | null {
         let row: number;
         let column: number;
 
@@ -1118,14 +1054,14 @@ export class Grid extends _Grid {
         return this[row][column];
     }
 
-    public draw() {
-        if (this.style) {
-            fill(this.style, this.x, this.y, this.width, this.height)
+    draw() {
+        if (this.color) {
+            fill(this.color, this.x, this.y, this.width, this.height)
         }
 
         for (let i = 0; i < this.rows; i++) {
             for (let j = 0; j < this.columns; j++) {
-                this[i][j].draw();
+                this[i][j].draw();          // await ?
             }
         }
     }
@@ -1171,7 +1107,7 @@ export function rgba(red: number, green: number, blue: number, alpha = 1): strin
     return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
 }
 
-export function hsla(degHue: number, pctSaturation = 100, pctLight = 50, alpha = 1): string {  
+export function hsla(degHue: number, pctSaturation = 100, pctLight = 50, alpha = 1): string {
     return `hsla(${degHue}, ${pctSaturation}%, ${pctLight}%, ${alpha})`;
 }
 
@@ -1185,8 +1121,8 @@ export function distance(x1: number, y1: number, x2: number, y2: number): number
     return Math.hypot(x2 - x1, y2 - y1);
 }
 
-export async function sleep(msDuration: number): Promise<void> {
-    await new Promise<void>(resolve => setTimeout(() => resolve(), msDuration));        // TODO, reject?
+export function sleep(msDuration: number): Promise<void> {
+    return new Promise<void>(resolve => setTimeout(() => resolve(), msDuration));        // TODO, reject?
 }
 
 export function array(length: number): any[];
@@ -1254,6 +1190,34 @@ export function shuffle<T>(array: T[]): T[] {
 
     return array;
 }
+
+// 3.0 ?
+export async function imagePaths(spritesheetPath: string, rows: number, columns: number): Promise<string[]> {
+    await _loadImage(spritesheetPath);
+
+    const _frameCanvas = document.createElement("canvas");
+    const _frameCtx = _frameCanvas.getContext("2d")!;
+
+    const frameWidth = _images[spritesheetPath].width / columns;
+    const frameHeight = _images[spritesheetPath].height / rows;
+
+    _frameCanvas.width = frameWidth;        // int?
+    _frameCanvas.height = frameHeight;
+
+    let paths: string[] = [];
+
+    for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < columns; j++) {
+            _frameCtx.drawImage(_images[spritesheetPath],
+                j * frameWidth, i * frameHeight, frameWidth, frameHeight,
+                0, 0, frameWidth, frameHeight)
+            paths.push(_frameCanvas.toDataURL("image/png"));
+        }
+    }
+
+    return paths;
+}
+
 
 
 //
@@ -1448,6 +1412,7 @@ export function addSVG<K extends keyof Omit<SVGElementTagNameMap, "svg">>(tagNam
 export function addSVG<K extends keyof Omit<SVGElementTagNameMap, "svg">>(tagName: K, parent: SVGSVGElement): SVGElementTagNameMap[K];
 export function addSVG<K extends keyof SVGElementTagNameMap>(tagName: K, arg1?: object, arg2?: HTMLElement | SVGSVGElement) {
     let elt = document.createElementNS("http://www.w3.org/2000/svg", tagName);
+
     if (arg1 === undefined) {
         document.body.appendChild(elt);
     } else if (arg1 instanceof HTMLElement || arg1 instanceof SVGSVGElement) {

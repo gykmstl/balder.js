@@ -2,17 +2,19 @@
 // version 3.0 (2022-01-) 
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
-// createIndexFrames baserat på setFrames?
-// ta bort style överallt. byt tillbaka till color? Jo enklare! Går ändp skapa avanacerat
-// cell.color enklare än style?
+// slå ihop add med addsvg?
+// skapa enkel "balderjs"-sida för testning?
+// bygga ihop med api-exempel?
+// kopiera o flytta till vs-code (app.ts)?
+// ...from "../balder.js"
+// ta bort "balder.ts" från mallen? rot
+// import "balder" from npm
+// skapa mall - bygg upp flera projekt i samma 
 // addSVG i div?
-// Vector2D - Martins (och Felix´) exempel på en inspirationssida!!!!
-// vector - scale? vs multiplyScalar vs multiply
+// Vector2 - Martins (och Felix´) exempel på en inspirationssida!!!!
 // Alla exempel på github? Eller skelamp?
 // API på github
 // Turtle - fill() (eller -path) 3.1?
-// Cell inner class?
-// record vs index signatures
 // kolla pixel() - bort? 3.1?
 //
 // Initialize
@@ -175,21 +177,21 @@ window.addEventListener("resize", () => {
 let _outputElt;
 let _inputLines = [];
 let _inputLineIndex = 0;
-export async function input(prompt = "Prompt", value) {
+export function input(prompt = "Prompt", defaultValue) {
     let inputElt = add("input", prompt);
-    inputElt.parentElement.style.display = "block";
+    inputElt.parentElement.style.display = "flex";
     inputElt.parentElement.style.fontFamily = "monospace";
     inputElt.style.fontFamily = "inherit";
     inputElt.style.backgroundColor = "inherit";
     inputElt.style.color = "inherit";
-    inputElt.style.boxSizing = "border-box";
-    inputElt.style.width = "100%";
-    if (value) {
-        inputElt.value = value;
+    // inputElt.style.boxSizing = "border-box";
+    if (defaultValue) {
+        inputElt.value = defaultValue;
         inputElt.select();
     }
+    // resetCanvas();      // 3.0 ?
     inputElt.focus(); // 3.0? 
-    return await new Promise((resolve) => {
+    return new Promise((resolve) => {
         let line = _inputLines[_inputLineIndex++];
         if (line) {
             resolve(line);
@@ -205,7 +207,8 @@ export async function input(prompt = "Prompt", value) {
                 inputElt.disabled = true;
             }
         });
-    }).catch(() => { throw new Error(); }); // reject?
+    });
+    // }).catch(() => { throw new Error() })       // reject?
 }
 let _outputValue = ""; // 2.01
 export function output(...args) {
@@ -223,6 +226,7 @@ export function output(...args) {
         _outputElt.textContent += args.map(v => str(v)).join(" ");
         _outputElt.textContent += "\n";
     }
+    // resetCanvas(); // 3.0 ?
 }
 export function str(value) {
     if (typeof value === "object" && value != null && (value.toString === Object.prototype.toString || value.toString === Array.prototype.toString)) {
@@ -270,21 +274,24 @@ window.addEventListener("load", () => {
         }
     }
 });
-export function pixel(x, y, color = _color) {
-    ctx.fillStyle = color;
-    ctx.fillRect(x, y, 1, 1);
-}
-export function line(x1, y1, x2, y2, style = _color, lineWidth = 1) {
+//
+// Drawing functions
+//
+// export function pixel(x: number, y: number, color = _color) {           // 3.0 ?
+//     ctx.fillStyle = color;
+//     ctx.fillRect(x, y, 1, 1);
+// }
+export function line(x1, y1, x2, y2, color = _color, 
+// style: Style = _color,
+lineWidth = 1) {
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
-    ctx.strokeStyle = style;
+    ctx.strokeStyle = color;
     ctx.lineWidth = lineWidth;
     ctx.stroke();
 }
-export function circle(x, y, radius, 
-// style: Style = _color,
-color = _color, lineWidth) {
+export function circle(x, y, radius, color = _color, lineWidth) {
     ctx.beginPath();
     ctx.ellipse(x, y, radius, radius, 0, 0, 2 * Math.PI);
     if (lineWidth) {
@@ -297,18 +304,18 @@ color = _color, lineWidth) {
         ctx.fill();
     }
 }
-export function rectangle(x, y, width, height, style = _color, lineWidth) {
+export function rectangle(x, y, width, height, color = _color, lineWidth) {
     if (lineWidth) {
         ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = style;
+        ctx.strokeStyle = color;
         ctx.strokeRect(x, y, width, height);
     }
     else {
-        ctx.fillStyle = style;
+        ctx.fillStyle = color;
         ctx.fillRect(x, y, width, height);
     }
 }
-export function triangle(x1, y1, x2, y2, x3, y3, style = _color, lineWidth) {
+export function triangle(x1, y1, x2, y2, x3, y3, color = _color, lineWidth) {
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
@@ -316,15 +323,15 @@ export function triangle(x1, y1, x2, y2, x3, y3, style = _color, lineWidth) {
     ctx.closePath();
     if (lineWidth) {
         ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = style;
+        ctx.strokeStyle = color;
         ctx.stroke();
     }
     else {
-        ctx.fillStyle = style;
+        ctx.fillStyle = color;
         ctx.fill();
     }
 }
-export function text(value, x = 0, y = 24, font = 24, style = _color, lineWidth) {
+export function text(value, x = 0, y = 24, font = 24, color = _color, lineWidth) {
     if (typeof font == "number") {
         ctx.font = font + "px monospace";
     }
@@ -333,17 +340,18 @@ export function text(value, x = 0, y = 24, font = 24, style = _color, lineWidth)
     }
     if (lineWidth) {
         ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = style;
+        ctx.strokeStyle = color;
         ctx.strokeText(str(value), x, y);
     }
     else {
-        ctx.fillStyle = style;
+        ctx.fillStyle = color;
         ctx.fillText(str(value), x, y);
     }
 }
-let _images = []; // Array of Images ?
-export async function preloadImage(path) {
-    await new Promise((resolve, reject) => {
+let _images = [];
+// let _images: Record<string, HTMLImageElement>;      // Array of Images ? record
+function _loadImage(path) {
+    return new Promise((resolve, reject) => {
         if (_images[path] === undefined) {
             _images[path] = new Image();
             _images[path].src = path;
@@ -359,7 +367,7 @@ export async function preloadImage(path) {
     });
 }
 export async function image(path, x = 0, y = 0, width, height = width) {
-    await preloadImage(path);
+    await _loadImage(path);
     if (width) {
         ctx.drawImage(_images[path], x, y, width, height);
     }
@@ -370,8 +378,8 @@ export async function image(path, x = 0, y = 0, width, height = width) {
 export function clear(x = 0, y = 0, width = W, height = H) {
     ctx.clearRect(x, y, width, height);
 }
-export function fill(style = _bgcolor, x = 0, y = 0, width = W, height = H) {
-    ctx.fillStyle = style;
+export function fill(color = _bgcolor, x = 0, y = 0, width = W, height = H) {
+    ctx.fillStyle = color;
     ctx.fillRect(x, y, width, height);
 }
 //
@@ -380,8 +388,6 @@ export function fill(style = _bgcolor, x = 0, y = 0, width = W, height = H) {
 export class Vector2 {
     x;
     y;
-    // chaining
-    // Vector2D.add()
     constructor(x, y) {
         this.x = x;
         this.y = y;
@@ -393,16 +399,23 @@ export class Vector2 {
         return Math.hypot(this.x, this.y);
     }
     set length(value) {
+        const angle = this.angle;
+        this.x = value * Math.cos(angle);
+        this.y = value * Math.sin(angle);
     }
-    get lengthSquared() {
-        return this.x ** 2 + this.y ** 2;
-    }
+    // public get lengthSquared() {
+    //     return this.x ** 2 + this.y ** 2;
+    // }
     get angle() {
         return Math.atan2(this.y, this.x);
     }
     set angle(value) {
-        this.x = Math.cos(value);
-        this.y = Math.sin(value);
+        const length = this.length;
+        this.x = length * Math.cos(value);
+        this.y = length * Math.sin(value);
+    }
+    clone() {
+        return new Vector2(this.x, this.y);
     }
     add(v) {
         this.x += v.x;
@@ -413,40 +426,31 @@ export class Vector2 {
         this.y -= v.y;
     }
     multiply(v) {
+        this.x *= v.x;
+        this.y *= v.y;
     }
     divide(v) {
+        this.x /= v.x;
+        this.y /= v.y;
     }
     scalarMultiply(s) {
         this.x *= s;
         this.y *= s;
     }
-    // public multiply(scalar: number) {
-    //     this.x *= scalar
-    //     this.y *= scalar
+    // static distance(v1: Vector2, v2: Vector2) {
+    //     return Math.hypot(v2.x - v1.x, v2.y - v1.y)
     // }
-    clone() {
-        return new Vector2(this.x, this.y);
+    distanceTo(v) {
+        return Math.hypot(this.x - v.x, this.y - v.y);
     }
-    // public getDistance(v: Vector2) {    // To? get? // onödig ? == (subtract, length) nej 
-    // }
-    static distance(v1, v2) {
-        return 0;
-    }
-    static distanceSquared(v1, v2) {
-        return 0;
-    }
-    // public getDistanceSquared(v: Vector2) {
-    //     // distanceSquared
+    // static distanceSquared(v1: Vector2, v2: Vector2) {      // ?
+    //     return (v2.x - v1.x) ** 2 + (v2.y - v1.y) ** 2
     // }
     dot(v) {
+        return this.x * v.x + this.y * v.y;
     }
-    // public negate() {
-    // }
-    normalize() {
-    }
-    // public random() {       // Behövs ej? randomangle, unit vector
-    // }
-    rotate(angle) {
+    toString() {
+        return `(${this.x}, ${this.y})`;
     }
 }
 //
@@ -483,53 +487,22 @@ export class Hitbox {
 // Sprite
 //
 export class Sprite extends Hitbox {
-    path;
+    spritesheetPath;
     rows;
     columns;
-    tag = {};
     index = 0;
     _frames = [];
     counter = 0;
     updatesPerFrame = 10;
     loop = true;
-    constructor(path, rows = 1, columns = 1, ...frames) {
+    tag = {};
+    constructor(spritesheetPath, rows = 1, columns = 1, ...frames) {
         super(0, 0, 0, 0);
-        this.path = path;
+        this.spritesheetPath = spritesheetPath;
         this.rows = rows;
         this.columns = columns;
-        if (frames.length > 0) {
-            this._frames = frames;
-        }
-        else {
-            this._frames = range(rows * columns);
-        }
+        this._frames = frames.length ? frames : range(rows * columns);
         _initUpdateables.push(this);
-        preloadImage(path);
-    }
-    async createIndexedImages() {
-        const _frameCanvas = document.createElement("canvas");
-        const _frameCtx = _frameCanvas.getContext("2d");
-        await new Promise((resolve, reject) => {
-            const _setIndexes = () => {
-                const frameWidth = _images[this.path].width / this.columns;
-                const frameHeight = _images[this.path].height / this.rows;
-                _frameCanvas.width = frameWidth;
-                _frameCanvas.height = frameHeight;
-                for (let i = 0; i < this.rows; i++) {
-                    for (let j = 0; j < this.columns; j++) {
-                        _frameCtx.drawImage(_images[this.path], j * frameWidth, i * frameHeight, frameWidth, frameHeight, 0, 0, frameWidth, frameHeight);
-                        this[i * this.columns + j] = _frameCanvas.toDataURL("image/png");
-                    }
-                }
-                resolve();
-            };
-            if (_images[this.path].complete) {
-                _setIndexes();
-            }
-            else {
-                _images[this.path].addEventListener("load", _setIndexes);
-            }
-        });
     }
     initUpdate() {
         if (this.counter == (this.updatesPerFrame - 1)) {
@@ -546,26 +519,16 @@ export class Sprite extends Hitbox {
         this.counter = (this.counter + 1) % this.updatesPerFrame;
     }
     async draw() {
-        await new Promise((resolve, reject) => {
-            const draw = () => {
-                const frameWidth = _images[this.path].width / this.columns;
-                const frameHeight = _images[this.path].height / this.rows;
-                if (this.width == 0)
-                    this.width = frameWidth;
-                if (this.height == 0)
-                    this.height = frameHeight;
-                const sx = frameWidth * (this._frames[this.index] % this.columns);
-                const sy = frameHeight * Math.floor(this._frames[this.index] / this.columns);
-                ctx.drawImage(_images[this.path], sx, sy, frameWidth, frameHeight, this.x, this.y, this.width, this.height);
-                resolve();
-            };
-            if (_images[this.path].complete) {
-                draw();
-            }
-            else {
-                _images[this.path].addEventListener("load", draw);
-            }
-        });
+        await _loadImage(this.spritesheetPath);
+        const frameWidth = _images[this.spritesheetPath].width / this.columns;
+        const frameHeight = _images[this.spritesheetPath].height / this.rows;
+        if (this.width == 0)
+            this.width = frameWidth;
+        if (this.height == 0)
+            this.height = frameHeight;
+        const sx = frameWidth * (this._frames[this.index] % this.columns);
+        const sy = frameHeight * Math.floor(this._frames[this.index] / this.columns);
+        ctx.drawImage(_images[this.spritesheetPath], sx, sy, frameWidth, frameHeight, this.x, this.y, this.width, this.height);
     }
 }
 //
@@ -734,11 +697,10 @@ export class Cell {
     y;
     width;
     height;
-    tag = {};
-    // private _style: Style | null = null;
     _color = null;
     _image = null;
     _custom = null;
+    tag = {};
     constructor(_grid, row, column, x, y, width, height) {
         this._grid = _grid;
         this.row = row;
@@ -777,7 +739,6 @@ export class Cell {
         if (this._color) {
             fill(this._color, this.x, this.y, this.width, this.height);
         }
-        debug(this._image);
         if (this._image) {
             await image(this._image, this.x, this.y, this.width, this.height);
         }
@@ -807,11 +768,11 @@ export class Grid extends _Grid {
     y;
     width;
     height;
-    style;
+    color;
     lineWidth;
     activatable = true;
     _activeCell = null;
-    constructor(rows, columns, x = 0, y = 0, width = W - 2 * x, height = H - 2 * y, style = _color, lineWidth = 1) {
+    constructor(rows, columns, x = 0, y = 0, width = W - 2 * x, height = H - 2 * y, color = _color, lineWidth = 1) {
         super(rows, columns, x, y, width, height, lineWidth);
         this.rows = rows;
         this.columns = columns;
@@ -819,7 +780,7 @@ export class Grid extends _Grid {
         this.y = y;
         this.width = width;
         this.height = height;
-        this.style = style;
+        this.color = color;
         this.lineWidth = lineWidth;
         this.draw();
     }
@@ -870,12 +831,12 @@ export class Grid extends _Grid {
         return this[row][column];
     }
     draw() {
-        if (this.style) {
-            fill(this.style, this.x, this.y, this.width, this.height);
+        if (this.color) {
+            fill(this.color, this.x, this.y, this.width, this.height);
         }
         for (let i = 0; i < this.rows; i++) {
             for (let j = 0; j < this.columns; j++) {
-                this[i][j].draw();
+                this[i][j].draw(); // await ?
             }
         }
     }
@@ -918,8 +879,8 @@ export function getPixel(x, y) {
 export function distance(x1, y1, x2, y2) {
     return Math.hypot(x2 - x1, y2 - y1);
 }
-export async function sleep(msDuration) {
-    await new Promise(resolve => setTimeout(() => resolve(), msDuration)); // TODO, reject?
+export function sleep(msDuration) {
+    return new Promise(resolve => setTimeout(() => resolve(), msDuration)); // TODO, reject?
 }
 export function array(length, value) {
     if (typeof value == "function") {
@@ -969,6 +930,24 @@ export function shuffle(array) {
         [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
+}
+// 3.0 ?
+export async function imagePaths(spritesheetPath, rows, columns) {
+    await _loadImage(spritesheetPath);
+    const _frameCanvas = document.createElement("canvas");
+    const _frameCtx = _frameCanvas.getContext("2d");
+    const frameWidth = _images[spritesheetPath].width / columns;
+    const frameHeight = _images[spritesheetPath].height / rows;
+    _frameCanvas.width = frameWidth; // int?
+    _frameCanvas.height = frameHeight;
+    let paths = [];
+    for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < columns; j++) {
+            _frameCtx.drawImage(_images[spritesheetPath], j * frameWidth, i * frameHeight, frameWidth, frameHeight, 0, 0, frameWidth, frameHeight);
+            paths.push(_frameCanvas.toDataURL("image/png"));
+        }
+    }
+    return paths;
 }
 //
 // GUI functions
