@@ -3,7 +3,8 @@
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
 
-// slå ihop add med addsvg?
+// text vs "\H"? \HTML
+// slå ihop add med addsvg? - går ej...
 
 // skapa enkel "balderjs"-sida för testning?
 // bygga ihop med api-exempel?
@@ -15,8 +16,6 @@
 // import "balder" from npm
 
 // skapa mall - bygg upp flera projekt i samma 
-
-// addSVG i div?
 
 // Vector2 - Martins (och Felix´) exempel på en inspirationssida!!!!
 // Alla exempel på github? Eller skelamp?
@@ -250,6 +249,11 @@ export function input(prompt = "Prompt", defaultValue?: string): Promise<string>
     inputElt.style.backgroundColor = "inherit";
     inputElt.style.color = "inherit";
     // inputElt.style.boxSizing = "border-box";
+
+    // if (_outputElt) {           // Rätt plats? Räcker med i input()?
+    //     _outputValue += _outputElt.textContent!;
+    //     _outputElt = null;
+    // }
 
     if (defaultValue) {
         inputElt.value = defaultValue;
@@ -795,7 +799,8 @@ export const touchscreen = {
 //
 
 export class Turtle {
-    private turtleContainer = addSVG("svg", { width: 20, height: 20 });
+    // private turtleContainer = addSVG("svg", { width: 20, height: 20 });
+    private turtleContainer = addSVG("svg", document.body);
     private turtle: SVGPolygonElement;
     private pen = true;
     private visible = true;
@@ -809,8 +814,13 @@ export class Turtle {
         public y = H / 2,
         public heading = 0
     ) {
+        this.turtleContainer.setAttribute("width", "20");
+        this.turtleContainer.setAttribute("height", "20");
         this.turtleContainer.style.position = "absolute";
-        this.turtle = addSVG("polygon", { points: "0,0 10,10, 0,20", fill: _color }, this.turtleContainer);
+        // this.turtle = addSVG("polygon", { points: "0,0 10,10, 0,20", fill: _color }, this.turtleContainer);
+        this.turtle = addSVG("polygon", this.turtleContainer);
+        this.turtle.setAttribute("points", "0,0 10,10, 0,20");
+        this.turtle.setAttribute("fill", _color);
 
         this.right(0);
         this.forward(0);
@@ -1191,7 +1201,7 @@ export function shuffle<T>(array: T[]): T[] {
     return array;
 }
 
-// 3.0 ?
+// 3.0
 export async function imagePaths(spritesheetPath: string, rows: number, columns: number): Promise<string[]> {
     await _loadImage(spritesheetPath);
 
@@ -1201,7 +1211,7 @@ export async function imagePaths(spritesheetPath: string, rows: number, columns:
     const frameWidth = _images[spritesheetPath].width / columns;
     const frameHeight = _images[spritesheetPath].height / rows;
 
-    _frameCanvas.width = frameWidth;        // int?
+    _frameCanvas.width = frameWidth;
     _frameCanvas.height = frameHeight;
 
     let paths: string[] = [];
@@ -1295,7 +1305,7 @@ export function add<K extends keyof TagTypeMap>(
 ): TagTypeMap[K] {
     let elt: TagTypeMap[K];
 
-    if (_outputElt) {           // Rätt plats? Räcker med i input()?
+    if (_outputElt) {
         _outputValue += _outputElt.textContent!;
         _outputElt = null;
     }
@@ -1406,24 +1416,12 @@ export function getLabel(labeledElement: HTMLElement) {
     throw new Error("'labeledElement' is not labeled");
 }
 
-export function addSVG(tagName: "svg", attributes?: object, parent?: HTMLElement | SVGSVGElement): SVGSVGElement;
 export function addSVG(tagName: "svg", parent?: HTMLElement | SVGSVGElement): SVGSVGElement;
-export function addSVG<K extends keyof Omit<SVGElementTagNameMap, "svg">>(tagName: K, attributes: object, parent: SVGSVGElement): SVGElementTagNameMap[K];
 export function addSVG<K extends keyof Omit<SVGElementTagNameMap, "svg">>(tagName: K, parent: SVGSVGElement): SVGElementTagNameMap[K];
-export function addSVG<K extends keyof SVGElementTagNameMap>(tagName: K, arg1?: object, arg2?: HTMLElement | SVGSVGElement) {
+export function addSVG<K extends keyof SVGElementTagNameMap>(tagName: K, parent: HTMLElement | SVGSVGElement = div) {
     let elt = document.createElementNS("http://www.w3.org/2000/svg", tagName);
 
-    if (arg1 === undefined) {
-        document.body.appendChild(elt);
-    } else if (arg1 instanceof HTMLElement || arg1 instanceof SVGSVGElement) {
-        arg1.appendChild(elt);
-    } else {
-        for (const key in arg1) {
-            elt.setAttribute(key, (arg1 as any)[key])
-        }
-
-        (arg2 ?? document.body).appendChild(elt);
-    }
+    parent.appendChild(elt);
 
     return elt;
 }

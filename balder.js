@@ -2,7 +2,8 @@
 // version 3.0 (2022-01-) 
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
-// slå ihop add med addsvg?
+// text vs "\H"? \HTML
+// slå ihop add med addsvg? - går ej...
 // skapa enkel "balderjs"-sida för testning?
 // bygga ihop med api-exempel?
 // kopiera o flytta till vs-code (app.ts)?
@@ -10,7 +11,6 @@
 // ta bort "balder.ts" från mallen? rot
 // import "balder" from npm
 // skapa mall - bygg upp flera projekt i samma 
-// addSVG i div?
 // Vector2 - Martins (och Felix´) exempel på en inspirationssida!!!!
 // Alla exempel på github? Eller skelamp?
 // API på github
@@ -185,6 +185,10 @@ export function input(prompt = "Prompt", defaultValue) {
     inputElt.style.backgroundColor = "inherit";
     inputElt.style.color = "inherit";
     // inputElt.style.boxSizing = "border-box";
+    // if (_outputElt) {           // Rätt plats? Räcker med i input()?
+    //     _outputValue += _outputElt.textContent!;
+    //     _outputElt = null;
+    // }
     if (defaultValue) {
         inputElt.value = defaultValue;
         inputElt.select();
@@ -614,7 +618,8 @@ export class Turtle {
     x;
     y;
     heading;
-    turtleContainer = addSVG("svg", { width: 20, height: 20 });
+    // private turtleContainer = addSVG("svg", { width: 20, height: 20 });
+    turtleContainer = addSVG("svg", document.body);
     turtle;
     pen = true;
     visible = true;
@@ -625,8 +630,13 @@ export class Turtle {
         this.x = x;
         this.y = y;
         this.heading = heading;
+        this.turtleContainer.setAttribute("width", "20");
+        this.turtleContainer.setAttribute("height", "20");
         this.turtleContainer.style.position = "absolute";
-        this.turtle = addSVG("polygon", { points: "0,0 10,10, 0,20", fill: _color }, this.turtleContainer);
+        // this.turtle = addSVG("polygon", { points: "0,0 10,10, 0,20", fill: _color }, this.turtleContainer);
+        this.turtle = addSVG("polygon", this.turtleContainer);
+        this.turtle.setAttribute("points", "0,0 10,10, 0,20");
+        this.turtle.setAttribute("fill", _color);
         this.right(0);
         this.forward(0);
     }
@@ -931,14 +941,14 @@ export function shuffle(array) {
     }
     return array;
 }
-// 3.0 ?
+// 3.0
 export async function imagePaths(spritesheetPath, rows, columns) {
     await _loadImage(spritesheetPath);
     const _frameCanvas = document.createElement("canvas");
     const _frameCtx = _frameCanvas.getContext("2d");
     const frameWidth = _images[spritesheetPath].width / columns;
     const frameHeight = _images[spritesheetPath].height / rows;
-    _frameCanvas.width = frameWidth; // int?
+    _frameCanvas.width = frameWidth;
     _frameCanvas.height = frameHeight;
     let paths = [];
     for (let i = 0; i < rows; i++) {
@@ -955,7 +965,7 @@ export async function imagePaths(spritesheetPath, rows, columns) {
 export let div;
 export function add(tagName, arg1, arg2) {
     let elt;
-    if (_outputElt) { // Rätt plats? Räcker med i input()?
+    if (_outputElt) {
         _outputValue += _outputElt.textContent;
         _outputElt = null;
     }
@@ -1058,20 +1068,9 @@ export function getLabel(labeledElement) {
     }
     throw new Error("'labeledElement' is not labeled");
 }
-export function addSVG(tagName, arg1, arg2) {
+export function addSVG(tagName, parent = div) {
     let elt = document.createElementNS("http://www.w3.org/2000/svg", tagName);
-    if (arg1 === undefined) {
-        document.body.appendChild(elt);
-    }
-    else if (arg1 instanceof HTMLElement || arg1 instanceof SVGSVGElement) {
-        arg1.appendChild(elt);
-    }
-    else {
-        for (const key in arg1) {
-            elt.setAttribute(key, arg1[key]);
-        }
-        (arg2 ?? document.body).appendChild(elt);
-    }
+    parent.appendChild(elt);
     return elt;
 }
 let _debugElt;
