@@ -1,21 +1,14 @@
 // BalderJS
-// version 3.0 (2022-01-) 
+// version 3.0 (2022-01-10) 
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
-// text vs "\H"? \HTML
-// slå ihop add med addsvg? - går ej...
 // skapa enkel "balderjs"-sida för testning?
 // bygga ihop med api-exempel?
 // kopiera o flytta till vs-code (app.ts)?
-// ...from "../balder.js"
-// ta bort "balder.ts" från mallen? rot
-// import "balder" from npm
 // skapa mall - bygg upp flera projekt i samma 
 // Vector2 - Martins (och Felix´) exempel på en inspirationssida!!!!
 // Alla exempel på github? Eller skelamp?
 // API på github
-// Turtle - fill() (eller -path) 3.1?
-// kolla pixel() - bort? 3.1?
 //
 // Initialize
 //
@@ -118,7 +111,7 @@ class BalderCanvas extends HTMLCanvasElement {
     }
 }
 customElements.define('balder-canvas', BalderCanvas, { extends: 'canvas' });
-export let canvas; // 3.0
+export let canvas;
 const _initUpdateables = [];
 let _update = () => { };
 export function setUpdate(handler = () => { }) {
@@ -184,17 +177,11 @@ export function input(prompt = "Prompt", defaultValue) {
     inputElt.style.fontFamily = "inherit";
     inputElt.style.backgroundColor = "inherit";
     inputElt.style.color = "inherit";
-    // inputElt.style.boxSizing = "border-box";
-    // if (_outputElt) {           // Rätt plats? Räcker med i input()?
-    //     _outputValue += _outputElt.textContent!;
-    //     _outputElt = null;
-    // }
     if (defaultValue) {
         inputElt.value = defaultValue;
         inputElt.select();
     }
-    // resetCanvas();      // 3.0 ?
-    inputElt.focus(); // 3.0? 
+    inputElt.focus();
     return new Promise((resolve) => {
         let line = _inputLines[_inputLineIndex++];
         if (line) {
@@ -212,9 +199,8 @@ export function input(prompt = "Prompt", defaultValue) {
             }
         });
     });
-    // }).catch(() => { throw new Error() })       // reject?
 }
-let _outputValue = ""; // 2.01
+let _outputValue = "";
 export function output(...args) {
     if (!_outputElt) {
         _outputElt = add("div");
@@ -230,7 +216,6 @@ export function output(...args) {
         _outputElt.textContent += args.map(v => str(v)).join(" ");
         _outputElt.textContent += "\n";
     }
-    // resetCanvas(); // 3.0 ?
 }
 export function str(value) {
     if (typeof value === "object" && value != null && (value.toString === Object.prototype.toString || value.toString === Array.prototype.toString)) {
@@ -272,7 +257,7 @@ window.addEventListener("load", () => {
                 offset++;
             }
             resp.style.backgroundColor = "lightsalmon";
-            const match = add("span", oValue.slice(0, offset), { parent: resp, newline: false });
+            const match = add("span", oValue.slice(0, offset), resp, undefined, false);
             match.style.backgroundColor = "palegreen";
             add("span", oValue.slice(offset), resp);
         }
@@ -281,13 +266,7 @@ window.addEventListener("load", () => {
 //
 // Drawing functions
 //
-// export function pixel(x: number, y: number, color = _color) {           // 3.0 ?
-//     ctx.fillStyle = color;
-//     ctx.fillRect(x, y, 1, 1);
-// }
-export function line(x1, y1, x2, y2, color = _color, 
-// style: Style = _color,
-lineWidth = 1) {
+export function line(x1, y1, x2, y2, color = _color, lineWidth = 1) {
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
@@ -353,7 +332,6 @@ export function text(value, x = 0, y = 24, font = 24, color = _color, lineWidth)
     }
 }
 let _images = [];
-// let _images: Record<string, HTMLImageElement>;      // Array of Images ? record
 function _loadImage(path) {
     return new Promise((resolve, reject) => {
         if (_images[path] === undefined) {
@@ -407,9 +385,6 @@ export class Vector2 {
         this.x = value * Math.cos(angle);
         this.y = value * Math.sin(angle);
     }
-    // public get lengthSquared() {
-    //     return this.x ** 2 + this.y ** 2;
-    // }
     get angle() {
         return Math.atan2(this.y, this.x);
     }
@@ -441,15 +416,9 @@ export class Vector2 {
         this.x *= s;
         this.y *= s;
     }
-    // static distance(v1: Vector2, v2: Vector2) {
-    //     return Math.hypot(v2.x - v1.x, v2.y - v1.y)
-    // }
     distanceTo(v) {
         return Math.hypot(this.x - v.x, this.y - v.y);
     }
-    // static distanceSquared(v1: Vector2, v2: Vector2) {      // ?
-    //     return (v2.x - v1.x) ** 2 + (v2.y - v1.y) ** 2
-    // }
     dot(v) {
         return this.x * v.x + this.y * v.y;
     }
@@ -618,12 +587,10 @@ export class Turtle {
     x;
     y;
     heading;
-    // private turtleContainer = addSVG("svg", { width: 20, height: 20 });
     turtleContainer = addSVG("svg", document.body);
     turtle;
     pen = true;
     visible = true;
-    // private path: [x: number, y: number][] = [];
     delay = 100;
     penSize = 1;
     constructor(x = W / 2, y = H / 2, heading = 0) {
@@ -633,7 +600,6 @@ export class Turtle {
         this.turtleContainer.setAttribute("width", "20");
         this.turtleContainer.setAttribute("height", "20");
         this.turtleContainer.style.position = "absolute";
-        // this.turtle = addSVG("polygon", { points: "0,0 10,10, 0,20", fill: _color }, this.turtleContainer);
         this.turtle = addSVG("polygon", this.turtleContainer);
         this.turtle.setAttribute("points", "0,0 10,10, 0,20");
         this.turtle.setAttribute("fill", _color);
@@ -652,7 +618,6 @@ export class Turtle {
         ctx.moveTo(this.x, this.y);
         this.x += Math.cos(radians(this.heading)) * length;
         this.y += Math.sin(radians(this.heading)) * length;
-        // this.path.push([this.x, this.y]);
         if (this.pen) {
             ctx.lineTo(this.x, this.y);
             ctx.strokeStyle = this.penColor;
@@ -846,7 +811,7 @@ export class Grid extends _Grid {
         }
         for (let i = 0; i < this.rows; i++) {
             for (let j = 0; j < this.columns; j++) {
-                this[i][j].draw(); // await ?
+                this[i][j].draw(); // TODO, await?
             }
         }
     }
@@ -930,7 +895,7 @@ export function range(a, b, c = 1) {
         }
     }
     else {
-        throw new RangeError("'by' must not be zero"); // ? 
+        throw new RangeError("'by' must not be zero");
     }
     return r;
 }
@@ -963,15 +928,15 @@ export async function imagePaths(spritesheetPath, rows, columns) {
 // GUI functions
 //
 export let div;
-export function add(tagName, arg1, arg2) {
+export function add(tagName, arg1, arg2, arg3, newline = true) {
     let elt;
     if (_outputElt) {
         _outputValue += _outputElt.textContent;
         _outputElt = null;
     }
-    if (typeof arg1 == "string" || (arg1 && !(arg1 instanceof HTMLElement) && ((obj) => ('text' in obj))(arg1))) {
+    if (typeof arg1 == "string") {
         if (_lbltags.includes(tagName.split(":")[0])) {
-            let labelElt = add("label", arg2);
+            let labelElt = add("label", arg2, arg3);
             labelElt.style.display = "inline-flex";
             add("span", arg1, labelElt);
             elt = add(tagName, labelElt);
@@ -994,19 +959,16 @@ export function add(tagName, arg1, arg2) {
             add("caption", arg1, elt);
         }
         else {
-            let text = typeof arg1 == "string" ? arg1 : arg1.text;
-            if (typeof arg1 == "object" && arg1.asHTML) {
-                elt.innerHTML = text;
+            if (arg1.startsWith("\\html:")) {
+                elt.innerHTML = arg1.slice(6);
             }
             else {
-                elt.textContent = text;
+                elt.textContent = arg1;
             }
         }
     }
     else {
-        if (arg1) {
-            arg2 = arg1;
-        }
+        [newline, arg3, arg2] = [arg3, arg2, arg1];
         if (tagName == "balder-canvas") {
             elt = document.createElement("canvas", { is: 'balder-canvas' });
         }
@@ -1018,22 +980,8 @@ export function add(tagName, arg1, arg2) {
             elt = document.createElement(tagName);
         }
     }
-    let parent = div ?? document.body;
-    let before = null;
-    let newline = true;
-    if (arg2) {
-        if (arg2 instanceof HTMLElement) {
-            parent = arg2;
-        }
-        else {
-            if (arg2.parent != null)
-                parent = arg2.parent;
-            if (arg2.before != null)
-                before = arg2.before;
-            if (arg2.newline != null)
-                newline = arg2.newline;
-        }
-    }
+    let parent = arg2 ?? div ?? document.body;
+    let before = arg3;
     if (tagName == "input:radio") {
         elt.name =
             parent instanceof HTMLFieldSetElement ?
@@ -1046,7 +994,6 @@ export function add(tagName, arg1, arg2) {
         before = parent.insertBefore(document.createTextNode("\n"), before);
     }
     parent.insertBefore(elt, before);
-    elt.focus(); // ? 3.0
     return elt;
 }
 export function setLabel(labeledElement, text) {
@@ -1068,7 +1015,7 @@ export function getLabel(labeledElement) {
     }
     throw new Error("'labeledElement' is not labeled");
 }
-export function addSVG(tagName, parent = div) {
+export function addSVG(tagName, parent = div ?? document.body) {
     let elt = document.createElementNS("http://www.w3.org/2000/svg", tagName);
     parent.appendChild(elt);
     return elt;
@@ -1094,7 +1041,7 @@ export function debug(...values) {
     add("option", values.map(v => str(v)).join(" "), _debugElt);
     _debugElt.scrollTop = _debugElt.scrollHeight;
 }
-let _canvas = document.querySelector("canvas[is=balder-canvas]"); // 3.0
+let _canvas = document.querySelector("canvas[is=balder-canvas]");
 if (_canvas) {
     canvas = _canvas;
 }

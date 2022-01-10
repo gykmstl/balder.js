@@ -1,19 +1,11 @@
 // BalderJS
-// version 3.0 (2022-01-) 
+// version 3.0 (2022-01-10) 
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
-
-// text vs "\H"? \HTML
-// slå ihop add med addsvg? - går ej...
 
 // skapa enkel "balderjs"-sida för testning?
 // bygga ihop med api-exempel?
 // kopiera o flytta till vs-code (app.ts)?
-
-
-// ...from "../balder.js"
-// ta bort "balder.ts" från mallen? rot
-// import "balder" from npm
 
 // skapa mall - bygg upp flera projekt i samma 
 
@@ -21,11 +13,6 @@
 // Alla exempel på github? Eller skelamp?
 
 // API på github
-
-// Turtle - fill() (eller -path) 3.1?
-
-// kolla pixel() - bort? 3.1?
-
 
 
 //
@@ -161,7 +148,7 @@ class BalderCanvas extends HTMLCanvasElement {
 
 customElements.define('balder-canvas', BalderCanvas, { extends: 'canvas' });
 
-export let canvas: BalderCanvas;     // 3.0
+export let canvas: BalderCanvas;
 
 const _initUpdateables: any[] = [];
 let _update = () => { };
@@ -207,7 +194,7 @@ window.onerror = (message) => {
     }
 };
 
-window.addEventListener("unhandledrejection", event => {        // ?
+window.addEventListener("unhandledrejection", event => {        // TODO, remove?
     throw event.reason;
 });
 
@@ -248,22 +235,15 @@ export function input(prompt = "Prompt", defaultValue?: string): Promise<string>
     inputElt.style.fontFamily = "inherit";
     inputElt.style.backgroundColor = "inherit";
     inputElt.style.color = "inherit";
-    // inputElt.style.boxSizing = "border-box";
-
-    // if (_outputElt) {           // Rätt plats? Räcker med i input()?
-    //     _outputValue += _outputElt.textContent!;
-    //     _outputElt = null;
-    // }
 
     if (defaultValue) {
         inputElt.value = defaultValue;
         inputElt.select();
     }
 
-    // resetCanvas();      // 3.0 ?
-    inputElt.focus();    // 3.0? 
+    inputElt.focus();
 
-    return new Promise<string>((resolve) => {     // reject?
+    return new Promise<string>((resolve) => {     // TODO, reject?
         let line = _inputLines[_inputLineIndex++];
 
         if (line) {
@@ -282,11 +262,9 @@ export function input(prompt = "Prompt", defaultValue?: string): Promise<string>
             }
         })
     });
-
-    // }).catch(() => { throw new Error() })       // reject?
 }
 
-let _outputValue = "";      // 2.01
+let _outputValue = "";
 
 export function output(...values: any[]): void;
 export function output(...args: [...values: any[], end: " "]): void;
@@ -305,8 +283,6 @@ export function output(...args: any[]) {
         _outputElt.textContent += args.map(v => str(v)).join(" ");
         _outputElt.textContent += "\n";
     }
-
-    // resetCanvas(); // 3.0 ?
 }
 
 export function str(value: any): string {
@@ -356,7 +332,7 @@ window.addEventListener("load", () => {
             }
 
             resp.style.backgroundColor = "lightsalmon";
-            const match = add("span", oValue.slice(0, offset), { parent: resp, newline: false });
+            const match = add("span", oValue.slice(0, offset), resp, undefined, false);
             match.style.backgroundColor = "palegreen";
             add("span", oValue.slice(offset), resp);
         }
@@ -368,16 +344,10 @@ window.addEventListener("load", () => {
 // Drawing functions
 //
 
-// export function pixel(x: number, y: number, color = _color) {           // 3.0 ?
-//     ctx.fillStyle = color;
-//     ctx.fillRect(x, y, 1, 1);
-// }
-
 export function line(
     x1: number, y1: number,
     x2: number, y2: number,
     color = _color,
-    // style: Style = _color,
     lineWidth = 1
 ) {
     ctx.beginPath();
@@ -471,7 +441,6 @@ export function text(
 }
 
 let _images: any = [];
-// let _images: Record<string, HTMLImageElement>;      // Array of Images ? record
 
 function _loadImage(path: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
@@ -522,7 +491,7 @@ export class Vector2 {
     }
 
     static fromPolar(length: number, angle: number): Vector2 {
-        return new Vector2(Math.cos(angle) * length, Math.sin(angle) * length)
+        return new Vector2(Math.cos(angle) * length, Math.sin(angle) * length);
     }
 
     get length() {
@@ -535,12 +504,8 @@ export class Vector2 {
         this.y = value * Math.sin(angle);
     }
 
-    // public get lengthSquared() {
-    //     return this.x ** 2 + this.y ** 2;
-    // }
-
     get angle() {
-        return Math.atan2(this.y, this.x)
+        return Math.atan2(this.y, this.x);
     }
 
     set angle(value: number) {
@@ -550,17 +515,17 @@ export class Vector2 {
     }
 
     clone() {
-        return new Vector2(this.x, this.y)
+        return new Vector2(this.x, this.y);
     }
 
     add(v: Vector2) {
-        this.x += v.x
-        this.y += v.y
+        this.x += v.x;
+        this.y += v.y;
     }
 
     subtract(v: Vector2) {
-        this.x -= v.x
-        this.y -= v.y
+        this.x -= v.x;
+        this.y -= v.y;
     }
 
     multiply(v: Vector2) {
@@ -574,21 +539,13 @@ export class Vector2 {
     }
 
     scalarMultiply(s: number) {
-        this.x *= s
-        this.y *= s
+        this.x *= s;
+        this.y *= s;
     }
-
-    // static distance(v1: Vector2, v2: Vector2) {
-    //     return Math.hypot(v2.x - v1.x, v2.y - v1.y)
-    // }
 
     distanceTo(v: Vector2) {
-        return Math.hypot(this.x - v.x, this.y - v.y)
+        return Math.hypot(this.x - v.x, this.y - v.y);
     }
-
-    // static distanceSquared(v1: Vector2, v2: Vector2) {      // ?
-    //     return (v2.x - v1.x) ** 2 + (v2.y - v1.y) ** 2
-    // }
 
     dot(v: Vector2) {
         return this.x * v.x + this.y * v.y;
@@ -757,7 +714,7 @@ export const keyboard = {
     }
 };
 
-window.addEventListener("blur", () => {     // TODO, remove? add more?
+window.addEventListener("blur", () => {     // TODO, remove?
     _keyboard["AltLeft"] = false;
 })
 
@@ -799,12 +756,10 @@ export const touchscreen = {
 //
 
 export class Turtle {
-    // private turtleContainer = addSVG("svg", { width: 20, height: 20 });
     private turtleContainer = addSVG("svg", document.body);
     private turtle: SVGPolygonElement;
     private pen = true;
     private visible = true;
-    // private path: [x: number, y: number][] = [];
 
     delay = 100;
     penSize = 1;
@@ -817,7 +772,6 @@ export class Turtle {
         this.turtleContainer.setAttribute("width", "20");
         this.turtleContainer.setAttribute("height", "20");
         this.turtleContainer.style.position = "absolute";
-        // this.turtle = addSVG("polygon", { points: "0,0 10,10, 0,20", fill: _color }, this.turtleContainer);
         this.turtle = addSVG("polygon", this.turtleContainer);
         this.turtle.setAttribute("points", "0,0 10,10, 0,20");
         this.turtle.setAttribute("fill", _color);
@@ -840,7 +794,6 @@ export class Turtle {
         ctx.moveTo(this.x, this.y);
         this.x += Math.cos(radians(this.heading)) * length;
         this.y += Math.sin(radians(this.heading)) * length;
-        // this.path.push([this.x, this.y]);
 
         if (this.pen) {
             ctx.lineTo(this.x, this.y);
@@ -1071,7 +1024,7 @@ export class Grid extends _Grid {
 
         for (let i = 0; i < this.rows; i++) {
             for (let j = 0; j < this.columns; j++) {
-                this[i][j].draw();          // await ?
+                this[i][j].draw();          // TODO, await?
             }
         }
     }
@@ -1137,7 +1090,7 @@ export function sleep(msDuration: number): Promise<void> {
 
 export function array(length: number): any[];
 export function array<T>(length: number, value: T): T[];
-export function array<T>(length: number, value: ((index?: number) => T)): T[];         // 3.0
+export function array<T>(length: number, value: ((index?: number) => T)): T[];
 export function array<T>(length: number, value?: any): T[] {
     if (typeof value == "function") {
         let a: T[] = [];
@@ -1186,7 +1139,7 @@ export function range(a: number, b?: number, c: number = 1): number[] {
             r.push(i);
         }
     } else {
-        throw new RangeError("'by' must not be zero");      // ? 
+        throw new RangeError("'by' must not be zero");
     }
 
     return r;
@@ -1262,57 +1215,38 @@ interface _ExtraTagMap {
     "balder-canvas": BalderCanvas;
 }
 
-export interface TagTypeMap extends HTMLElementTagNameMap, _ExtraTagMap { }     // ? TagNameMap BalderTagNameMap - slå ihop snyggare
+export interface TagNameMap extends HTMLElementTagNameMap, _ExtraTagMap { }
 
-export function add<K extends keyof TagTypeMap>(
-    tagName: K
-): TagTypeMap[K];
-export function add<K extends keyof TagTypeMap>(
+export function add<K extends keyof TagNameMap>(
     tagName: K,
-    text: string | {
-        text: string,
-        asHTML?: boolean
-    }
-): TagTypeMap[K];
-export function add<K extends keyof TagTypeMap>(
+    text?: string,
+    parent?: HTMLElement,
+    before?: Node,
+    newline?: boolean
+): TagNameMap[K];
+export function add<K extends keyof TagNameMap>(
     tagName: K,
-    text: string | {
-        text: string,
-        asHTML?: boolean
-    },
-    parent: HTMLElement | {
-        parent?: HTMLElement,
-        before?: Node,
-        newline?: boolean
-    }
-): TagTypeMap[K];
-export function add<K extends keyof TagTypeMap>(
+    parent?: HTMLElement,
+    before?: Node,
+    newline?: boolean
+): TagNameMap[K];
+export function add<K extends keyof TagNameMap>(
     tagName: K,
-    parent: HTMLElement | {
-        parent?: HTMLElement,
-        before?: Node,
-        newline?: boolean
-    }
-): TagTypeMap[K];
-export function add<K extends keyof TagTypeMap>(
-    tagName: K,
-    arg1?: string | object,
-    arg2?: HTMLElement | {
-        parent?: HTMLElement,
-        before?: Node,
-        newline?: boolean
-    }
-): TagTypeMap[K] {
-    let elt: TagTypeMap[K];
+    arg1?: string | HTMLElement,
+    arg2?: HTMLElement | Node,
+    arg3?: Node | boolean,
+    newline = true
+): TagNameMap[K] {
+    let elt: TagNameMap[K];
 
     if (_outputElt) {
         _outputValue += _outputElt.textContent!;
         _outputElt = null;
     }
 
-    if (typeof arg1 == "string" || (arg1 && !(arg1 instanceof HTMLElement) && ((obj: any): obj is { text: string, asHTML?: boolean } => ('text' in obj))(arg1))) {
+    if (typeof arg1 == "string") {
         if (_lbltags.includes(tagName.split(":")[0] as _LabelableTag)) {
-            let labelElt = add("label", arg2!);
+            let labelElt = add("label", arg2 as HTMLElement, arg3 as Node);
             labelElt.style.display = "inline-flex";
             add("span", arg1, labelElt);
             elt = add(tagName, labelElt);
@@ -1326,7 +1260,7 @@ export function add<K extends keyof TagTypeMap>(
             return elt;
         }
 
-        elt = document.createElement(tagName) as TagTypeMap[K];
+        elt = document.createElement(tagName) as TagNameMap[K];
 
         if (tagName == "fieldset") {
             add("legend", arg1, elt as HTMLFieldSetElement);
@@ -1335,42 +1269,27 @@ export function add<K extends keyof TagTypeMap>(
         } else if (tagName == "table") {
             add("caption", arg1, elt as HTMLTableCaptionElement);
         } else {
-            let text = typeof arg1 == "string" ? arg1 : arg1.text;
-
-            if (typeof arg1 == "object" && arg1.asHTML) {
-                elt.innerHTML = text;
+            if (arg1.startsWith("\\html:")) {
+                elt.innerHTML = arg1.slice(6);
             } else {
-                elt.textContent = text;
+                elt.textContent = arg1;
             }
         }
     } else {
-        if (arg1) {
-            arg2 = arg1;
-        }
+        [newline, arg3, arg2] = [arg3 as boolean, arg2, arg1];
 
         if (tagName == "balder-canvas") {
-            elt = document.createElement("canvas", { is: 'balder-canvas' }) as TagTypeMap[K];
+            elt = document.createElement("canvas", { is: 'balder-canvas' }) as TagNameMap[K];
         } else if (tagName.startsWith("input:")) {
-            elt = document.createElement("input") as TagTypeMap[K];
+            elt = document.createElement("input") as TagNameMap[K];
             (elt as HTMLInputElement).type = tagName.substr(6);
         } else {
-            elt = document.createElement(tagName) as TagTypeMap[K];
+            elt = document.createElement(tagName) as TagNameMap[K];
         }
     }
 
-    let parent: HTMLElement = div ?? document.body;
-    let before: Node | null = null;
-    let newline = true;
-
-    if (arg2) {
-        if (arg2 instanceof HTMLElement) {
-            parent = arg2;
-        } else {
-            if (arg2.parent != null) parent = arg2.parent;
-            if (arg2.before != null) before = arg2.before;
-            if (arg2.newline != null) newline = arg2.newline;
-        }
-    }
+    let parent: HTMLElement = (arg2 as HTMLElement) ?? div ?? document.body;
+    let before = arg3 as Node;
 
     if (tagName == "input:radio") {
         (elt as HTMLInputElement).name =
@@ -1382,11 +1301,10 @@ export function add<K extends keyof TagTypeMap>(
     }
 
     if (newline) {
-        before = parent.insertBefore(document.createTextNode("\n"), before)
+        before = parent.insertBefore(document.createTextNode("\n"), before);
     }
 
     parent.insertBefore(elt, before);
-    elt.focus();        // ? 3.0
 
     return elt;
 }
@@ -1418,7 +1336,7 @@ export function getLabel(labeledElement: HTMLElement) {
 
 export function addSVG(tagName: "svg", parent?: HTMLElement | SVGSVGElement): SVGSVGElement;
 export function addSVG<K extends keyof Omit<SVGElementTagNameMap, "svg">>(tagName: K, parent: SVGSVGElement): SVGElementTagNameMap[K];
-export function addSVG<K extends keyof SVGElementTagNameMap>(tagName: K, parent: HTMLElement | SVGSVGElement = div) {
+export function addSVG<K extends keyof SVGElementTagNameMap>(tagName: K, parent: HTMLElement | SVGSVGElement = div ?? document.body) {
     let elt = document.createElementNS("http://www.w3.org/2000/svg", tagName);
 
     parent.appendChild(elt);
@@ -1451,7 +1369,7 @@ export function debug(...values: any[]) {
     _debugElt.scrollTop = _debugElt.scrollHeight;
 }
 
-let _canvas: BalderCanvas | null = document.querySelector("canvas[is=balder-canvas]");        // 3.0
+let _canvas: BalderCanvas | null = document.querySelector("canvas[is=balder-canvas]");
 
 if (_canvas) {
     canvas = _canvas;

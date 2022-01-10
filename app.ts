@@ -1,30 +1,18 @@
-import { add, addSVG, circle, fill, image, input, output, Turtle } from "./balder.js";
-
-// let t = new Turtle()
-
-// await t.forward(100)
-// await t.left()
-// await t.forward(100)
-// await t.left()
-// await t.forward(100)
-// await t.left()
-// await t.forward(100)
+import { W, H, add, circle, Grid, mouse, setUpdate, canvas, clear, text, keyboard, div } from "./balder.js";
 
 
-// let b = +await input("b")
 
-// output(a, b, a + b)
+// let g = new Grid(4, 6, 0, 0, W, H, "blue", 4)
 
-// for (let i = 0; i < 10; i++) {
-//     output(i, a, b, a)
+// for (let i = 0; i < 4; i++) {
+//     for (let j = 0; j < 6; j++) {
+//         g[i][j].image = "sheet8.png"
+//     }
 // }
 
+// add("button", "\\html:sss-<i>sss</i>-111")
 
-// output(123)
-// add("button", "A")
-// output(123)
-// output(123)
-// let a = +await input("a")
-// output(a + a)
-
-// let s = addSVG("svg")
+// setUpdate(() => {
+//     clear()
+//     text(keyboard.poll())
+// })
