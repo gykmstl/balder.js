@@ -1,18 +1,8 @@
-import { W, H, add, circle, Grid, mouse, setUpdate, canvas, clear, text, keyboard, div } from "./balder.js";
+import { Vector2, output } from "./balder.js";
 
 
+let v1 = new Vector2(3, 5)
+let v2 = new Vector2(6, 9)
 
-// let g = new Grid(4, 6, 0, 0, W, H, "blue", 4)
+output(v1.distanceTo(v2))
 
-// for (let i = 0; i < 4; i++) {
-//     for (let j = 0; j < 6; j++) {
-//         g[i][j].image = "sheet8.png"
-//     }
-// }
-
-// add("button", "\\html:sss-<i>sss</i>-111")
-
-// setUpdate(() => {
-//     clear()
-//     text(keyboard.poll())
-// })

@@ -1,18 +1,7 @@
 // BalderJS
-// version 3.0 (2022-01-10) 
+// version 3.0.1 (2022-01-19) 
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
-
-// skapa enkel "balderjs"-sida för testning?
-// bygga ihop med api-exempel?
-// kopiera o flytta till vs-code (app.ts)?
-
-// skapa mall - bygg upp flera projekt i samma 
-
-// Vector2 - Martins (och Felix´) exempel på en inspirationssida!!!!
-// Alla exempel på github? Eller skelamp?
-
-// API på github
 
 
 //
@@ -155,6 +144,7 @@ let _update = () => { };
 
 export function setUpdate(handler = () => { }) {
     _update = handler;
+    canvas.focus();         // 3.01
 }
 
 function _updateHandler() {
@@ -504,6 +494,10 @@ export class Vector2 {
         this.y = value * Math.sin(angle);
     }
 
+    get lengthSquared() {
+        return this.x ** 2 + this.y ** 2;
+    }
+
     get angle() {
         return Math.atan2(this.y, this.x);
     }
@@ -545,6 +539,10 @@ export class Vector2 {
 
     distanceTo(v: Vector2) {
         return Math.hypot(this.x - v.x, this.y - v.y);
+    }
+
+    distanceToSquared(v: Vector2) {
+        return (this.x - v.x) ** 2 + (this.y - v.y) ** 2;
     }
 
     dot(v: Vector2) {
@@ -1246,7 +1244,7 @@ export function add<K extends keyof TagNameMap>(
 
     if (typeof arg1 == "string") {
         if (_lbltags.includes(tagName.split(":")[0] as _LabelableTag)) {
-            let labelElt = add("label", arg2 as HTMLElement, arg3 as Node);
+            let labelElt = add("label", arg2 as HTMLElement, arg3 as Node, newline);    // 3.01
             labelElt.style.display = "inline-flex";
             add("span", arg1, labelElt);
             elt = add(tagName, labelElt);
@@ -1276,7 +1274,8 @@ export function add<K extends keyof TagNameMap>(
             }
         }
     } else {
-        [newline, arg3, arg2] = [arg3 as boolean, arg2, arg1];
+        newline = arg3 === undefined ? true : arg3 as boolean   // 3.01
+        [arg3, arg2] = [arg2, arg1];
 
         if (tagName == "balder-canvas") {
             elt = document.createElement("canvas", { is: 'balder-canvas' }) as TagNameMap[K];

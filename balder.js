@@ -1,14 +1,7 @@
 // BalderJS
-// version 3.0 (2022-01-10) 
+// version 3.0.1 (2022-01-19) 
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
-// skapa enkel "balderjs"-sida för testning?
-// bygga ihop med api-exempel?
-// kopiera o flytta till vs-code (app.ts)?
-// skapa mall - bygg upp flera projekt i samma 
-// Vector2 - Martins (och Felix´) exempel på en inspirationssida!!!!
-// Alla exempel på github? Eller skelamp?
-// API på github
 //
 // Initialize
 //
@@ -116,6 +109,7 @@ const _initUpdateables = [];
 let _update = () => { };
 export function setUpdate(handler = () => { }) {
     _update = handler;
+    canvas.focus(); // 3.01
 }
 function _updateHandler() {
     for (let iu of _initUpdateables) {
@@ -385,6 +379,9 @@ export class Vector2 {
         this.x = value * Math.cos(angle);
         this.y = value * Math.sin(angle);
     }
+    get lengthSquared() {
+        return this.x ** 2 + this.y ** 2;
+    }
     get angle() {
         return Math.atan2(this.y, this.x);
     }
@@ -418,6 +415,9 @@ export class Vector2 {
     }
     distanceTo(v) {
         return Math.hypot(this.x - v.x, this.y - v.y);
+    }
+    distanceToSquared(v) {
+        return (this.x - v.x) ** 2 + (this.y - v.y) ** 2;
     }
     dot(v) {
         return this.x * v.x + this.y * v.y;
@@ -936,7 +936,7 @@ export function add(tagName, arg1, arg2, arg3, newline = true) {
     }
     if (typeof arg1 == "string") {
         if (_lbltags.includes(tagName.split(":")[0])) {
-            let labelElt = add("label", arg2, arg3);
+            let labelElt = add("label", arg2, arg3, newline); // 3.01
             labelElt.style.display = "inline-flex";
             add("span", arg1, labelElt);
             elt = add(tagName, labelElt);
@@ -968,7 +968,8 @@ export function add(tagName, arg1, arg2, arg3, newline = true) {
         }
     }
     else {
-        [newline, arg3, arg2] = [arg3, arg2, arg1];
+        newline = arg3 === undefined ? true : arg3; // 3.01
+        [arg3, arg2] = [arg2, arg1];
         if (tagName == "balder-canvas") {
             elt = document.createElement("canvas", { is: 'balder-canvas' });
         }
