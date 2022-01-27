@@ -5,70 +5,6 @@
 	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
 	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. 
 	// Placeholders with the same ids are connected.
-	// "output": {
-	// 	"scope": "typescript",
-	// 	"prefix": [
-	// 		"op"
-	// 	],
-	// 	"body": [
-	// 		"B.output($1)"
-	// 	],
-	// 	"description": "output(value?: any, end = \"\n\"): void"
-	// },
-	// "cout": {
-	// 	"scope": "typescript",
-	// 	"prefix": [
-	// 		"co"
-	// 	],
-	// 	"body": [
-	// 		"B.cout(${1:\"Hello World\"})"
-	// 	],
-	// 	"description": "set prompts"
-	// },
-	// "setPrompts": {
-	// 	"scope": "typescript",
-	// 	"prefix": [
-	// 		"sp"
-	// 	],
-	// 	"body": [
-	// 		"B.setPrompts(\"${1:Indata \\0}\")"
-	// 	],
-	// 	"description": "set prompts"
-	// },
-	// "input": {
-	// 	"scope": "typescript",
-	// 	"prefix": [
-	// 		"ip"
-	// 	],
-	// 	"body": [
-	// 		"B.input()"
-	// 	],
-	// 	"description": "input(): string"
-	// },
-	// "setSubmit": {
-	// 	"scope": "typescript",
-	// 	"prefix": [
-	// 		"ss"
-	// 	],
-	// 	"body": [
-	// 		"B.setSubmit(() => {",
-	// 		"\t$1",
-	// 		"})"
-	// 	],
-	// 	"description": "setSubmit(handler?: () => void): void"
-	// },
-	// "setUpdate": {
-	// 	"scope": "typescript",
-	// 	"prefix": [
-	// 		"su"
-	// 	],
-	// 	"body": [
-	// 		"B.setUpdate(() => {",
-	// 		"\t$1",
-	// 		"})"
-	// 	],
-	// 	"description": "set update"
-	// },
 	"arrow function": {
 		"scope": "typescript",
 		"prefix": "af",
@@ -98,13 +34,5 @@
 			"}"
 		],
 		"description": "while-loop"
-	},
-	"document.getElementById": {
-		"scope": "typescript",
-		"prefix": "ge",
-		"body": [
-			"let ${1:a} = document.getElementById(\"$1\")"
-		],
-		"description": "document.getElementById()"
 	},
 }

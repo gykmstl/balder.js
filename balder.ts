@@ -1,7 +1,14 @@
 // BalderJS
-// version 3.0.1 (2022-01-19) 
+// version 3.1 (2022-) 
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
+
+// pixel ... 3.1 ?
+
+// add("input", "abc\\ ")
+
+// deltaTime
+// FPS - measure
 
 
 //
@@ -225,6 +232,7 @@ export function input(prompt = "Prompt", defaultValue?: string): Promise<string>
     inputElt.style.fontFamily = "inherit";
     inputElt.style.backgroundColor = "inherit";
     inputElt.style.color = "inherit";
+    inputElt.style.flex = "1";      // ?
 
     if (defaultValue) {
         inputElt.value = defaultValue;
@@ -333,6 +341,31 @@ window.addEventListener("load", () => {
 //
 // Drawing functions
 //
+
+// 3.1 ?
+export function polygon(
+    points: [x: number, y: number][],
+    color = _color,
+    lineWidth?: number
+) {
+    if (points.length < 2) throw new RangeError("Too few points");
+
+    ctx.beginPath();
+    ctx.moveTo(...points[0]);
+    for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(...points[i])
+    }
+    ctx.closePath();
+
+    if (lineWidth) {
+        ctx.lineWidth = lineWidth;
+        ctx.strokeStyle = color;
+        ctx.stroke();
+    } else {
+        ctx.fillStyle = color;
+        ctx.fill();
+    }
+}
 
 export function line(
     x1: number, y1: number,
@@ -1246,14 +1279,23 @@ export function add<K extends keyof TagNameMap>(
         if (_lbltags.includes(tagName.split(":")[0] as _LabelableTag)) {
             let labelElt = add("label", arg2 as HTMLElement, arg3 as Node, newline);    // 3.01
             labelElt.style.display = "inline-flex";
-            add("span", arg1, labelElt);
-            elt = add(tagName, labelElt);
 
             if (["input:checkbox", "input:radio"].includes(tagName)) {
                 labelElt.style.flexDirection = "row-reverse";
             } else {
                 labelElt.style.flexDirection = "column";
             }
+
+            if (arg1.endsWith("\\ ")) {
+                arg1 = arg1.slice(0, -2);
+                labelElt.style.flexDirection = "row";
+                labelElt.style.gap = "0.25em";
+            }
+
+            add("span", arg1, labelElt);
+            elt = add(tagName, labelElt);
+
+            // elt.style.flex = "1"; // ?
 
             return elt;
         }
