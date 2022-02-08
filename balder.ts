@@ -3,13 +3,6 @@
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
 
-// pixel ... 3.1 ?
-
-// add("input", "abc\\ ")
-
-// deltaTime
-// FPS - measure
-
 
 //
 // Initialize
@@ -149,6 +142,9 @@ export let canvas: BalderCanvas;
 const _initUpdateables: any[] = [];
 let _update = () => { };
 
+export let deltaTime: number;       // 3.1
+let time0 = performance.now();
+
 export function setUpdate(handler = () => { }) {
     _update = handler;
     canvas.focus();         // 3.01
@@ -158,6 +154,10 @@ function _updateHandler() {
     for (let iu of _initUpdateables) {
         iu.initUpdate();
     }
+
+    let time1 = performance.now();
+    deltaTime = time1 - time0;
+    time0 = time1;
 
     _update();
     requestAnimationFrame(_updateHandler);
@@ -224,6 +224,11 @@ let _outputElt: HTMLDivElement | null;
 let _inputLines: string[] = [];
 let _inputLineIndex = 0;
 
+export function setInputs(...values: (string | number)[]) {     // 3.1 ?
+    _inputLines = values.join("\n").split("\n");
+    _inputLineIndex = 0;
+}
+
 export function input(prompt = "Prompt", defaultValue?: string): Promise<string> {
     let inputElt = add("input", prompt);
 
@@ -247,7 +252,7 @@ export function input(prompt = "Prompt", defaultValue?: string): Promise<string>
         if (line) {
             resolve(line);
             inputElt.value = line;
-            inputElt.readOnly = true;
+            inputElt.disabled = true;
             return;
         }
 
@@ -265,7 +270,7 @@ export function input(prompt = "Prompt", defaultValue?: string): Promise<string>
 let _outputValue = "";
 
 export function output(...values: any[]): void;
-export function output(...args: [...values: any[], end: " "]): void;
+export function output(...args: [...values: any[], end: "" | " " | "\t" | "\n"]): void;
 export function output(...args: any[]) {
     if (!_outputElt) {
         _outputElt = add("div");
@@ -341,6 +346,7 @@ window.addEventListener("load", () => {
 //
 // Drawing functions
 //
+
 
 // 3.1 ?
 export function polygon(

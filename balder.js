@@ -2,10 +2,6 @@
 // version 3.1 (2022-) 
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
-// pixel ... 3.1 ?
-// add("input", "abc\\ ")
-// deltaTime
-// FPS - measure
 //
 // Initialize
 //
@@ -111,6 +107,8 @@ customElements.define('balder-canvas', BalderCanvas, { extends: 'canvas' });
 export let canvas;
 const _initUpdateables = [];
 let _update = () => { };
+export let deltaTime; // 3.1
+let time0 = performance.now();
 export function setUpdate(handler = () => { }) {
     _update = handler;
     canvas.focus(); // 3.01
@@ -119,6 +117,9 @@ function _updateHandler() {
     for (let iu of _initUpdateables) {
         iu.initUpdate();
     }
+    let time1 = performance.now();
+    deltaTime = time1 - time0;
+    time0 = time1;
     _update();
     requestAnimationFrame(_updateHandler);
 }
@@ -168,6 +169,10 @@ window.addEventListener("resize", () => {
 let _outputElt;
 let _inputLines = [];
 let _inputLineIndex = 0;
+export function setInputs(...values) {
+    _inputLines = values.join("\n").split("\n");
+    _inputLineIndex = 0;
+}
 export function input(prompt = "Prompt", defaultValue) {
     let inputElt = add("input", prompt);
     inputElt.parentElement.style.display = "flex";
@@ -186,7 +191,7 @@ export function input(prompt = "Prompt", defaultValue) {
         if (line) {
             resolve(line);
             inputElt.value = line;
-            inputElt.readOnly = true;
+            inputElt.disabled = true;
             return;
         }
         inputElt.addEventListener("keydown", event => {

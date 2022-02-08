@@ -1,59 +1,59 @@
-export {};
-// output(123, "\b")
-// output(123, "\b")
-// output(123, "\b")
-// output(123, "\b")
-// output(123, "\b")
-// let b = add("button", "Start")
-// b.onclick = () => {
-//     let t0 = performance.now()
-//     output("lorem ipssum")
-//     b.textContent = "Stopp"
-//     b.onclick = () => {
-//         let t1 = performance.now()
-//         b.remove()
-//         output(((t1 - t0) / 1000).toFixed(2))
-//     }
-// }
-// ctx.moveTo(100, 100)
-// ctx.lineTo(200, 100)
-// ctx.lineTo(150, 150)
-// ctx.closePath()
-// ctx.fillStyle = "red"
-// ctx.fill()
-// let ps = []
-// for (let i = 0; i < 360; i += 90) {
-//     ps.push(fromPolar(50, i, 100, 100))
-// }
-// polygon(ps, "red", 10)
-// polygon([[20, 20], [40, 40], [30, 20]], "red")
-// polygon([[100, 100], [150, 120], [200, 100], [150, 150]], "green")
-// output(ps)
-// ctx.moveTo(...ps[0])
-// for (let i = 1; i < ps.length; i++) {
-//     ctx.lineTo(...ps[i])
-// }
-// ctx.fill()
-// add("textarea", "Namn:\\ ")
-// add("textarea", "Namn:")
-// let f = add("fieldset", "www", add("p"))
-// add("input:radio", "aaa", add("p", f))
-// add("input:radio", "aaa", add("p", f))
-// add("input:radio", "aaa", add("p", f))
-// add("input:radio", "aaa", add("p", f))
-// let x = await input("Namn")
-// let x2 = await input("Namn\\ ")
-// let x3 = await input("Namn\\ ")
-// output("Hej " + x + "!!")
+import { input, Grid, sleep, setInputs, div } from "./balder.js";
+setInputs(`5 5 4
+v>^v
+#####
+#O#.#
+#...#
+##..#
+#####`);
+const [R, C, N] = (await input("R C N")).split(" ").map(v => +v);
+let commands = await input("commands");
+let g = new Grid(R, C);
+let r;
+let c;
+for (let i = 0; i < R; i++) {
+    let row = await input("Row " + i + "\\ ");
+    for (let j = 0; j < C; j++) {
+        let cell = g[i][j];
+        cell.color = "white";
+        switch (row[j]) {
+            case "#":
+                cell.image = "lada.PNG";
+                break;
+            case "O":
+                cell.image = "robot.PNG";
+                r = i;
+                c = j;
+                break;
+        }
+    }
+}
 // resetCanvas()
-// fill("red")
-// let v1 = new Vector2(3, 5)
-// let v2 = new Vector2(6, 9)
-// output(Vector2.fromPolar(10, Math.PI / 2).distanceTo(new Vector2(10, 0)))
-// resetCanvas()
-// for (let i = 0; i < 360; i += 15) {
-//     // circle(...Vector2.fromPolar(40, i), 5, "red")
-//     circle(...fromPolar(H/2, i, W/2, H/2), 5, "red")
-// }
-// output(v1.distanceTo(v2))
+div.textContent = "";
+g.draw();
+let count = 0;
+const dirs = {
+    "<": [0, -1],
+    ">": [0, 1],
+    "^": [-1, 0],
+    "v": [1, 0]
+};
+for (let i = 0; i < N; i++) {
+    let command = commands[i];
+    let [dr, dc] = dirs[command];
+    while (true) {
+        if (g[r][c].color != "green") {
+            g[r][c].color = "green";
+            count++;
+        }
+        if (g[r + dr][c + dc].image == "lada.PNG")
+            break;
+        await sleep(200);
+        g[r][c].image = null;
+        r += dr;
+        c += dc;
+        g[r][c].image = "robot.PNG";
+    }
+}
+// output(count)
 //# sourceMappingURL=app.js.map
