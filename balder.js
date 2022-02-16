@@ -1,7 +1,8 @@
 // BalderJS
-// version 3.1 (2022-) 
+// version 3.1 (2022-02-17) 
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
+// pre-wrap / word-wrap ? behövs båda i output?
 //
 // Initialize
 //
@@ -182,7 +183,7 @@ export function input(prompt = "Prompt", defaultValue) {
     inputElt.style.color = "inherit";
     inputElt.style.flex = "1"; // ?
     if (defaultValue) {
-        inputElt.value = defaultValue;
+        inputElt.value = String(defaultValue);
         inputElt.select();
     }
     inputElt.focus();
@@ -250,7 +251,7 @@ window.addEventListener("load", () => {
         resp.style.wordWrap = "break-word";
         resp.style.color = "black";
         const oValue = decodeURIComponent(oParam);
-        _outputValue = _outputValue.trimEnd();
+        _outputValue = _outputValue.split("\n").map(line => line.trimEnd()).join("\n"); // 3.1
         if (_outputValue == oValue) {
             resp.style.backgroundColor = "palegreen";
             resp.textContent = _outputValue;
@@ -742,7 +743,7 @@ export class Cell {
     async draw() {
         clear(this.x, this.y, this.width, this.height);
         if (this._color) {
-            fill(this._color, this.x, this.y, this.width, this.height);
+            fill(this._color, this.x + 0.5, this.y + 0.5, this.width - 1, this.height - 1);
         }
         if (this._image) {
             await image(this._image, this.x, this.y, this.width, this.height);
@@ -777,7 +778,8 @@ export class Grid extends _Grid {
     lineWidth;
     activatable = true;
     _activeCell = null;
-    constructor(rows, columns, x = 0, y = 0, width = W - 2 * x, height = H - 2 * y, color = _color, lineWidth = 1) {
+    constructor(rows, columns, x = 0, // 3.1
+    y = 0, width = W - 2 * x, height = H - 2 * y, color = _color, lineWidth = 1) {
         super(rows, columns, x, y, width, height, lineWidth);
         this.rows = rows;
         this.columns = columns;
@@ -846,6 +848,45 @@ export class Grid extends _Grid {
         }
     }
 }
+// 3.1 ?
+export class Controller {
+    grid;
+    constructor(x = 0, y = 0, width = W - 2 * x, height = H - 2 * y) {
+        this.grid = new Grid(2, 4, x, y, width, height, "black");
+        for (let i = 0; i < 4; i++) {
+            this.grid[0][i].color = "grey";
+            this.grid[1][i].color = "grey";
+            this.grid[0][i].custom = (c) => text(i, c.x, c.y + 18, 24, "black");
+        }
+        _initUpdateables.push(this);
+    }
+    set in0(value) { this.grid[0][0].color = value ? "lightgreen" : "grey"; }
+    set in1(value) { this.grid[0][1].color = value ? "lightgreen" : "grey"; }
+    set in2(value) { this.grid[0][2].color = value ? "lightgreen" : "grey"; }
+    set in3(value) { this.grid[0][3].color = value ? "lightgreen" : "grey"; }
+    get in0() { return this.grid[0][0].color == "lightgreen"; }
+    get in1() { return this.grid[0][1].color == "lightgreen"; }
+    get in2() { return this.grid[0][2].color == "lightgreen"; }
+    get in3() { return this.grid[0][3].color == "lightgreen"; }
+    set out0(value) { this.grid[1][0].color = value ? "lightgreen" : "grey"; }
+    set out1(value) { this.grid[1][1].color = value ? "lightgreen" : "grey"; }
+    set out2(value) { this.grid[1][2].color = value ? "lightgreen" : "grey"; }
+    set out3(value) { this.grid[1][3].color = value ? "lightgreen" : "grey"; }
+    get out0() { return this.grid[1][0].color == "lightgreen"; }
+    get out1() { return this.grid[1][1].color == "lightgreen"; }
+    get out2() { return this.grid[1][2].color == "lightgreen"; }
+    get out3() { return this.grid[1][3].color == "lightgreen"; }
+    initUpdate() {
+        if (this.grid.activated) {
+            if (this.grid.activeCell.row == 0) {
+                this.grid.activeCell.color = this.grid.activeCell.color != "lightgreen" ? "lightgreen" : "grey";
+            }
+        }
+    }
+    draw() {
+        this.grid.draw();
+    }
+}
 //
 // Helper functions
 //
@@ -891,7 +932,7 @@ export function array(length, value) {
     if (typeof value == "function") {
         let a = [];
         for (let i = 0; i < length; i++) {
-            a[i] = value.call(null, i);
+            a[i] = value(i);
         }
         return a;
     }
@@ -899,10 +940,11 @@ export function array(length, value) {
 }
 export function array2D(rows, columns, value) {
     if (typeof value == "function") {
-        let m = array2D(rows, columns);
+        let m = [];
         for (let i = 0; i < rows; i++) {
+            m[i] = [];
             for (let j = 0; j < columns; j++) {
-                m[i][j] = value.call(null, i, j);
+                m[i][j] = value(i, j);
             }
         }
         return m;
@@ -961,7 +1003,7 @@ export let div;
 export function add(tagName, arg1, arg2, arg3, newline = true) {
     let elt;
     if (_outputElt) {
-        _outputValue += _outputElt.textContent;
+        _outputValue += _outputElt.textContent.trimEnd();
         _outputElt = null;
     }
     if (typeof arg1 == "string") {
@@ -981,7 +1023,6 @@ export function add(tagName, arg1, arg2, arg3, newline = true) {
             }
             add("span", arg1, labelElt);
             elt = add(tagName, labelElt);
-            // elt.style.flex = "1"; // ?
             return elt;
         }
         elt = document.createElement(tagName);
@@ -1004,7 +1045,7 @@ export function add(tagName, arg1, arg2, arg3, newline = true) {
         }
     }
     else {
-        newline = arg3 === undefined ? true : arg3; // 3.01
+        newline = arg3 === undefined ? true : arg3;
         [arg3, arg2] = [arg2, arg1];
         if (tagName == "balder-canvas") {
             elt = document.createElement("canvas", { is: 'balder-canvas' });
@@ -1060,11 +1101,15 @@ export function addSVG(tagName, parent = div ?? document.body) {
 let _debugElt;
 export function debug(...values) {
     if (!_debugElt) {
-        _debugElt = add("select", document.body);
-        _debugElt.size = 2;
+        _debugElt = add("div", document.body);
+        _debugElt.style.maxHeight = "5em";
+        _debugElt.style.overflowY = "auto";
         _debugElt.style.fontFamily = "monospace";
+        _debugElt.style.backgroundColor = "lightyellow";
         _debugElt.style.color = "black";
-        _debugElt.style.backgroundColor = "yellow";
+        _debugElt.style.border = "1px solid black"; // 3.1 ? 
+        // _debugElt.style.whiteSpace = "pre-wrap";
+        // _debugElt.style.wordWrap = "break-word";
         _debugElt.style.position = "fixed";
         _debugElt.style.bottom = "0";
         _debugElt.style.left = "0";
@@ -1075,7 +1120,7 @@ export function debug(...values) {
             _debugElt = null;
         };
     }
-    add("option", values.map(v => str(v)).join(" "), _debugElt);
+    add("div", values.map(v => str(v)).join(" "), _debugElt);
     _debugElt.scrollTop = _debugElt.scrollHeight;
 }
 let _canvas = document.querySelector("canvas[is=balder-canvas]");

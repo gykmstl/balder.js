@@ -1,8 +1,9 @@
 // BalderJS
-// version 3.1 (2022-) 
+// version 3.1 (2022-02-17) 
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
 
+// pre-wrap / word-wrap ? behövs båda i output?
 
 //
 // Initialize
@@ -229,7 +230,7 @@ export function setInputs(...values: (string | number)[]) {     // 3.1 ?
     _inputLineIndex = 0;
 }
 
-export function input(prompt = "Prompt", defaultValue?: string): Promise<string> {
+export function input(prompt = "Prompt", defaultValue?: string | number): Promise<string> {
     let inputElt = add("input", prompt);
 
     inputElt.parentElement!.style.display = "flex";
@@ -240,7 +241,7 @@ export function input(prompt = "Prompt", defaultValue?: string): Promise<string>
     inputElt.style.flex = "1";      // ?
 
     if (defaultValue) {
-        inputElt.value = defaultValue;
+        inputElt.value = String(defaultValue);
         inputElt.select();
     }
 
@@ -323,7 +324,7 @@ window.addEventListener("load", () => {
         resp.style.color = "black";
 
         const oValue = decodeURIComponent(oParam);
-        _outputValue = _outputValue.trimEnd();
+        _outputValue = _outputValue.split("\n").map(line => line.trimEnd()).join("\n");     // 3.1
 
         if (_outputValue == oValue) {
             resp.style.backgroundColor = "palegreen";
@@ -944,7 +945,7 @@ export class Cell {
         clear(this.x, this.y, this.width, this.height);
 
         if (this._color) {
-            fill(this._color, this.x, this.y, this.width, this.height);
+            fill(this._color, this.x + 0.5, this.y + 0.5, this.width - 1, this.height - 1);
         }
 
         if (this._image) {
@@ -989,10 +990,10 @@ export class Grid extends _Grid {
     constructor(
         readonly rows: number,
         readonly columns: number,
-        private x = 0,
-        private y = 0,
-        private width = W - 2 * x,
-        private height = H - 2 * y,
+        readonly x = 0,             // 3.1
+        readonly y = 0,
+        readonly width = W - 2 * x,
+        readonly height = H - 2 * y,
         private color = _color,
         private lineWidth = 1
     ) {
@@ -1067,6 +1068,58 @@ export class Grid extends _Grid {
     }
 }
 
+// 3.1 ?
+export class Controller {
+    private grid: Grid;
+
+    constructor(
+        x = 0,
+        y = 0,
+        width = W - 2 * x,
+        height = H - 2 * y,
+    ) {
+        this.grid = new Grid(2, 4, x, y, width, height, "black");
+
+        for (let i = 0; i < 4; i++) {
+            this.grid[0][i].color = "grey"
+            this.grid[1][i].color = "grey"
+            this.grid[0][i].custom = (c) => text(i, c.x, c.y + 18, 24, "black")
+        }
+
+        _initUpdateables.push(this);
+    }
+
+    set in0(value: boolean) { this.grid[0][0].color = value ? "lightgreen" : "grey" }
+    set in1(value: boolean) { this.grid[0][1].color = value ? "lightgreen" : "grey" }
+    set in2(value: boolean) { this.grid[0][2].color = value ? "lightgreen" : "grey" }
+    set in3(value: boolean) { this.grid[0][3].color = value ? "lightgreen" : "grey" }
+    get in0() { return this.grid[0][0].color == "lightgreen" }
+    get in1() { return this.grid[0][1].color == "lightgreen" }
+    get in2() { return this.grid[0][2].color == "lightgreen" }
+    get in3() { return this.grid[0][3].color == "lightgreen" }
+
+    set out0(value: boolean) { this.grid[1][0].color = value ? "lightgreen" : "grey" }
+    set out1(value: boolean) { this.grid[1][1].color = value ? "lightgreen" : "grey" }
+    set out2(value: boolean) { this.grid[1][2].color = value ? "lightgreen" : "grey" }
+    set out3(value: boolean) { this.grid[1][3].color = value ? "lightgreen" : "grey" }
+    get out0() { return this.grid[1][0].color == "lightgreen" }
+    get out1() { return this.grid[1][1].color == "lightgreen" }
+    get out2() { return this.grid[1][2].color == "lightgreen" }
+    get out3() { return this.grid[1][3].color == "lightgreen" }
+
+    private initUpdate() {
+        if (this.grid.activated) {
+            if (this.grid.activeCell!.row == 0) {
+                this.grid.activeCell!.color = this.grid.activeCell!.color != "lightgreen" ? "lightgreen" : "grey";
+            }
+        }
+    }
+
+    public draw() {
+        this.grid.draw();
+    }
+}
+
 
 //
 // Helper functions
@@ -1125,14 +1178,15 @@ export function sleep(msDuration: number): Promise<void> {
     return new Promise<void>(resolve => setTimeout(() => resolve(), msDuration));        // TODO, reject?
 }
 
-export function array(length: number): any[];
-export function array<T>(length: number, value: T): T[];
+export function array(length: number, value: string): string[];
+export function array(length: number, value: number): number[];
+export function array(length: number, value: boolean): boolean[];
 export function array<T>(length: number, value: ((index?: number) => T)): T[];
-export function array<T>(length: number, value?: any): T[] {
+export function array(length: number, value: any) {
     if (typeof value == "function") {
-        let a: T[] = [];
+        let a = [];
         for (let i = 0; i < length; i++) {
-            a[i] = value.call(null, i);
+            a[i] = value(i)
         }
         return a;
     }
@@ -1140,15 +1194,17 @@ export function array<T>(length: number, value?: any): T[] {
     return Array(length).fill(value);
 }
 
-export function array2D(rows: number, columns: number): any[][];
-export function array2D<T>(rows: number, columns: number, value: T): T[][];
+export function array2D(rows: number, columns: number, value: string): string[][];
+export function array2D(rows: number, columns: number, value: number): number[][];
+export function array2D(rows: number, columns: number, value: boolean): boolean[][];
 export function array2D<T>(rows: number, columns: number, value: ((row?: number, column?: number) => T)): T[][];
-export function array2D<T>(rows: number, columns: number, value?: any): T[][] {
+export function array2D(rows: number, columns: number, value: any) {
     if (typeof value == "function") {
-        let m: T[][] = array2D(rows, columns)
+        let m: any[][] = []
         for (let i = 0; i < rows; i++) {
+            m[i] = [];
             for (let j = 0; j < columns; j++) {
-                m[i][j] = value.call(null, i, j);
+                m[i][j] = value(i, j);
             }
         }
         return m;
@@ -1277,7 +1333,7 @@ export function add<K extends keyof TagNameMap>(
     let elt: TagNameMap[K];
 
     if (_outputElt) {
-        _outputValue += _outputElt.textContent!;
+        _outputValue += _outputElt.textContent!.trimEnd();
         _outputElt = null;
     }
 
@@ -1301,8 +1357,6 @@ export function add<K extends keyof TagNameMap>(
             add("span", arg1, labelElt);
             elt = add(tagName, labelElt);
 
-            // elt.style.flex = "1"; // ?
-
             return elt;
         }
 
@@ -1322,7 +1376,7 @@ export function add<K extends keyof TagNameMap>(
             }
         }
     } else {
-        newline = arg3 === undefined ? true : arg3 as boolean   // 3.01
+        newline = arg3 === undefined ? true : arg3 as boolean;
         [arg3, arg2] = [arg2, arg1];
 
         if (tagName == "balder-canvas") {
@@ -1391,15 +1445,20 @@ export function addSVG<K extends keyof SVGElementTagNameMap>(tagName: K, parent:
     return elt;
 }
 
-let _debugElt: HTMLSelectElement | null;
+let _debugElt: HTMLDivElement | null;
 
 export function debug(...values: any[]) {
     if (!_debugElt) {
-        _debugElt = add("select", document.body);
-        _debugElt.size = 2;
+        _debugElt = add("div", document.body);
+        _debugElt.style.maxHeight = "5em";
+        _debugElt.style.overflowY = "auto";
         _debugElt.style.fontFamily = "monospace";
+        _debugElt.style.backgroundColor = "lightyellow";
         _debugElt.style.color = "black";
-        _debugElt.style.backgroundColor = "yellow";
+        _debugElt.style.border = "1px solid black";  // 3.1 ? 
+        // _debugElt.style.whiteSpace = "pre-wrap";
+        // _debugElt.style.wordWrap = "break-word";
+
         _debugElt.style.position = "fixed";
         _debugElt.style.bottom = "0";
         _debugElt.style.left = "0";
@@ -1412,7 +1471,7 @@ export function debug(...values: any[]) {
         }
     }
 
-    add("option", values.map(v => str(v)).join(" "), _debugElt);
+    add("div", values.map(v => str(v)).join(" "), _debugElt);
     _debugElt.scrollTop = _debugElt.scrollHeight;
 }
 
