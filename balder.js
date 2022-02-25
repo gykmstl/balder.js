@@ -1,8 +1,7 @@
 // BalderJS
-// version 3.1 (2022-02-17) 
+// version 3.1.1 (2022-02-24) 
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
-// pre-wrap / word-wrap ? behövs båda i output?
 //
 // Initialize
 //
@@ -108,11 +107,11 @@ customElements.define('balder-canvas', BalderCanvas, { extends: 'canvas' });
 export let canvas;
 const _initUpdateables = [];
 let _update = () => { };
-export let deltaTime; // 3.1
+export let deltaTime;
 let time0 = performance.now();
 export function setUpdate(handler = () => { }) {
     _update = handler;
-    canvas.focus(); // 3.01
+    canvas.focus();
 }
 function _updateHandler() {
     for (let iu of _initUpdateables) {
@@ -136,7 +135,7 @@ window.onerror = (message) => {
     _errorElt.style.color = "white";
     _errorElt.style.backgroundColor = "red";
     _errorElt.style.position = "fixed";
-    _errorElt.style.bottom = "0";
+    _errorElt.style.bottom = "4px";
     _errorElt.style.left = "0";
     _errorElt.style.width = "100%";
     _errorElt.style.zIndex = "2147483647";
@@ -174,14 +173,14 @@ export function setInputs(...values) {
     _inputLines = values.join("\n").split("\n");
     _inputLineIndex = 0;
 }
-export function input(prompt = "Prompt", defaultValue) {
+export function input(prompt = "", defaultValue) {
     let inputElt = add("input", prompt);
     inputElt.parentElement.style.display = "flex";
     inputElt.parentElement.style.fontFamily = "monospace";
     inputElt.style.fontFamily = "inherit";
     inputElt.style.backgroundColor = "inherit";
     inputElt.style.color = "inherit";
-    inputElt.style.flex = "1"; // ?
+    inputElt.style.flex = "1";
     if (defaultValue) {
         inputElt.value = String(defaultValue);
         inputElt.select();
@@ -251,7 +250,7 @@ window.addEventListener("load", () => {
         resp.style.wordWrap = "break-word";
         resp.style.color = "black";
         const oValue = decodeURIComponent(oParam);
-        _outputValue = _outputValue.split("\n").map(line => line.trimEnd()).join("\n"); // 3.1
+        _outputValue = _outputValue.split("\n").map(line => line.trimEnd()).join("\n");
         if (_outputValue == oValue) {
             resp.style.backgroundColor = "palegreen";
             resp.textContent = _outputValue;
@@ -271,7 +270,6 @@ window.addEventListener("load", () => {
 //
 // Drawing functions
 //
-// 3.1 ?
 export function polygon(points, color = _color, lineWidth) {
     if (points.length < 2)
         throw new RangeError("Too few points");
@@ -778,8 +776,7 @@ export class Grid extends _Grid {
     lineWidth;
     activatable = true;
     _activeCell = null;
-    constructor(rows, columns, x = 0, // 3.1
-    y = 0, width = W - 2 * x, height = H - 2 * y, color = _color, lineWidth = 1) {
+    constructor(rows, columns, x = 0, y = 0, width = W - 2 * x, height = H - 2 * y, color = _color, lineWidth = 1) {
         super(rows, columns, x, y, width, height, lineWidth);
         this.rows = rows;
         this.columns = columns;
@@ -848,10 +845,9 @@ export class Grid extends _Grid {
         }
     }
 }
-// 3.1 ?
 export class Controller {
     grid;
-    constructor(x = 0, y = 0, width = W - 2 * x, height = H - 2 * y) {
+    constructor(x = 0, y = 0, width, height) {
         this.grid = new Grid(2, 4, x, y, width, height, "black");
         for (let i = 0; i < 4; i++) {
             this.grid[0][i].color = "grey";
@@ -978,7 +974,6 @@ export function shuffle(array) {
     }
     return array;
 }
-// 3.0
 export async function imagePaths(spritesheetPath, rows, columns) {
     await _loadImage(spritesheetPath);
     const _frameCanvas = document.createElement("canvas");
@@ -990,6 +985,7 @@ export async function imagePaths(spritesheetPath, rows, columns) {
     let paths = [];
     for (let i = 0; i < rows; i++) {
         for (let j = 0; j < columns; j++) {
+            _frameCtx.clearRect(0, 0, frameWidth, frameHeight); // 3.1.1
             _frameCtx.drawImage(_images[spritesheetPath], j * frameWidth, i * frameHeight, frameWidth, frameHeight, 0, 0, frameWidth, frameHeight);
             paths.push(_frameCanvas.toDataURL("image/png"));
         }
@@ -1008,7 +1004,7 @@ export function add(tagName, arg1, arg2, arg3, newline = true) {
     }
     if (typeof arg1 == "string") {
         if (_lbltags.includes(tagName.split(":")[0])) {
-            let labelElt = add("label", arg2, arg3, newline); // 3.01
+            let labelElt = add("label", arg2, arg3, newline);
             labelElt.style.display = "inline-flex";
             if (["input:checkbox", "input:radio"].includes(tagName)) {
                 labelElt.style.flexDirection = "row-reverse";
@@ -1036,8 +1032,8 @@ export function add(tagName, arg1, arg2, arg3, newline = true) {
             add("caption", arg1, elt);
         }
         else {
-            if (arg1.startsWith("\\html:")) {
-                elt.innerHTML = arg1.slice(6);
+            if (arg1.startsWith("\\ ")) {
+                elt.innerHTML = arg1.slice(2);
             }
             else {
                 elt.textContent = arg1;
@@ -1107,11 +1103,9 @@ export function debug(...values) {
         _debugElt.style.fontFamily = "monospace";
         _debugElt.style.backgroundColor = "lightyellow";
         _debugElt.style.color = "black";
-        _debugElt.style.border = "1px solid black"; // 3.1 ? 
-        // _debugElt.style.whiteSpace = "pre-wrap";
-        // _debugElt.style.wordWrap = "break-word";
+        _debugElt.style.border = "1px solid black";
         _debugElt.style.position = "fixed";
-        _debugElt.style.bottom = "0";
+        _debugElt.style.bottom = "4px";
         _debugElt.style.left = "0";
         _debugElt.style.width = "100%";
         _debugElt.style.zIndex = "2147483646";

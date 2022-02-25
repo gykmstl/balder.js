@@ -1,9 +1,8 @@
 // BalderJS
-// version 3.1 (2022-02-17) 
+// version 3.1.1 (2022-02-24) 
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
 
-// pre-wrap / word-wrap ? behövs båda i output?
 
 //
 // Initialize
@@ -143,12 +142,12 @@ export let canvas: BalderCanvas;
 const _initUpdateables: any[] = [];
 let _update = () => { };
 
-export let deltaTime: number;       // 3.1
+export let deltaTime: number;
 let time0 = performance.now();
 
 export function setUpdate(handler = () => { }) {
     _update = handler;
-    canvas.focus();         // 3.01
+    canvas.focus();
 }
 
 function _updateHandler() {
@@ -180,7 +179,7 @@ window.onerror = (message) => {
     _errorElt.style.color = "white";
     _errorElt.style.backgroundColor = "red";
     _errorElt.style.position = "fixed";
-    _errorElt.style.bottom = "0";
+    _errorElt.style.bottom = "4px";
     _errorElt.style.left = "0";
     _errorElt.style.width = "100%";
     _errorElt.style.zIndex = "2147483647";
@@ -225,12 +224,12 @@ let _outputElt: HTMLDivElement | null;
 let _inputLines: string[] = [];
 let _inputLineIndex = 0;
 
-export function setInputs(...values: (string | number)[]) {     // 3.1 ?
+export function setInputs(...values: (string | number)[]) {
     _inputLines = values.join("\n").split("\n");
     _inputLineIndex = 0;
 }
 
-export function input(prompt = "Prompt", defaultValue?: string | number): Promise<string> {
+export function input(prompt = "", defaultValue?: string | number): Promise<string> {
     let inputElt = add("input", prompt);
 
     inputElt.parentElement!.style.display = "flex";
@@ -238,7 +237,7 @@ export function input(prompt = "Prompt", defaultValue?: string | number): Promis
     inputElt.style.fontFamily = "inherit";
     inputElt.style.backgroundColor = "inherit";
     inputElt.style.color = "inherit";
-    inputElt.style.flex = "1";      // ?
+    inputElt.style.flex = "1";
 
     if (defaultValue) {
         inputElt.value = String(defaultValue);
@@ -324,7 +323,7 @@ window.addEventListener("load", () => {
         resp.style.color = "black";
 
         const oValue = decodeURIComponent(oParam);
-        _outputValue = _outputValue.split("\n").map(line => line.trimEnd()).join("\n");     // 3.1
+        _outputValue = _outputValue.split("\n").map(line => line.trimEnd()).join("\n");
 
         if (_outputValue == oValue) {
             resp.style.backgroundColor = "palegreen";
@@ -348,8 +347,6 @@ window.addEventListener("load", () => {
 // Drawing functions
 //
 
-
-// 3.1 ?
 export function polygon(
     points: [x: number, y: number][],
     color = _color,
@@ -990,7 +987,7 @@ export class Grid extends _Grid {
     constructor(
         readonly rows: number,
         readonly columns: number,
-        readonly x = 0,             // 3.1
+        readonly x = 0,
         readonly y = 0,
         readonly width = W - 2 * x,
         readonly height = H - 2 * y,
@@ -1068,15 +1065,14 @@ export class Grid extends _Grid {
     }
 }
 
-// 3.1 ?
 export class Controller {
     private grid: Grid;
 
     constructor(
         x = 0,
         y = 0,
-        width = W - 2 * x,
-        height = H - 2 * y,
+        width?: number,
+        height?: number,
     ) {
         this.grid = new Grid(2, 4, x, y, width, height, "black");
 
@@ -1247,7 +1243,6 @@ export function shuffle<T>(array: T[]): T[] {
     return array;
 }
 
-// 3.0
 export async function imagePaths(spritesheetPath: string, rows: number, columns: number): Promise<string[]> {
     await _loadImage(spritesheetPath);
 
@@ -1264,6 +1259,7 @@ export async function imagePaths(spritesheetPath: string, rows: number, columns:
 
     for (let i = 0; i < rows; i++) {
         for (let j = 0; j < columns; j++) {
+            _frameCtx.clearRect(0, 0, frameWidth, frameHeight);     // 3.1.1
             _frameCtx.drawImage(_images[spritesheetPath],
                 j * frameWidth, i * frameHeight, frameWidth, frameHeight,
                 0, 0, frameWidth, frameHeight)
@@ -1273,7 +1269,6 @@ export async function imagePaths(spritesheetPath: string, rows: number, columns:
 
     return paths;
 }
-
 
 
 //
@@ -1339,7 +1334,7 @@ export function add<K extends keyof TagNameMap>(
 
     if (typeof arg1 == "string") {
         if (_lbltags.includes(tagName.split(":")[0] as _LabelableTag)) {
-            let labelElt = add("label", arg2 as HTMLElement, arg3 as Node, newline);    // 3.01
+            let labelElt = add("label", arg2 as HTMLElement, arg3 as Node, newline);
             labelElt.style.display = "inline-flex";
 
             if (["input:checkbox", "input:radio"].includes(tagName)) {
@@ -1369,8 +1364,8 @@ export function add<K extends keyof TagNameMap>(
         } else if (tagName == "table") {
             add("caption", arg1, elt as HTMLTableCaptionElement);
         } else {
-            if (arg1.startsWith("\\html:")) {
-                elt.innerHTML = arg1.slice(6);
+            if (arg1.startsWith("\\ ")) {
+                elt.innerHTML = arg1.slice(2);
             } else {
                 elt.textContent = arg1;
             }
@@ -1455,12 +1450,9 @@ export function debug(...values: any[]) {
         _debugElt.style.fontFamily = "monospace";
         _debugElt.style.backgroundColor = "lightyellow";
         _debugElt.style.color = "black";
-        _debugElt.style.border = "1px solid black";  // 3.1 ? 
-        // _debugElt.style.whiteSpace = "pre-wrap";
-        // _debugElt.style.wordWrap = "break-word";
-
+        _debugElt.style.border = "1px solid black";
         _debugElt.style.position = "fixed";
-        _debugElt.style.bottom = "0";
+        _debugElt.style.bottom = "4px";
         _debugElt.style.left = "0";
         _debugElt.style.width = "100%";
         _debugElt.style.zIndex = "2147483646";

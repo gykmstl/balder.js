@@ -1,51 +1,33 @@
-import { input, output } from "./balder.js";
+import { canvas, div, Grid, imagePaths, output, randomInt } from "./balder.js";
 
-let x = await input("x:")
-let y = await input("y:")
+let g = new Grid(9, 9)
+let nrs = await imagePaths("numbers4.png", 1, 10)
 
-output(x + y)
+for (let i = 0; i < 9; i += 1) {
+    for (let j = 0; j < 9; j += 1) {
+        g[i][j].tag = new Grid(3, 3, g[i][j].x, g[i][j].y, g[i][j].width, g[i][j].height)
 
-// output(createArray(10, i => i))
+        let rc = Math.floor(i / 3)
+        let cc = Math.floor(j / 3)
 
-// let b = createArray(12, (i) => {
-//     return () => randomInt(100)
-// })
+        for (let ii = 0; ii < 3; ii += 1) {
+            for (let jj = 0; jj < 3; jj += 1) {
+                if ((rc + cc) % 2 == 1) {
+                    g[i][j].tag[ii][jj].color = "lightgrey"
+                }
 
-// output(b[0]())
+                g[i][j].tag[ii][jj].image = nrs[randomInt(10)]
+            }
+        }
+        g[i][j].custom = (c) => {
+            c.tag.draw()
+        }
+    }
+}
 
-// let a = array(3, () => randomInt(10))
-
-// output(a, a[0])
-// output(a[0] + 1)
-
-
-// let m2 = array2D(3, 4, () => randomInt(10))
-// output(m2)
-// output(m2[0][0] + 1)
-
-// let c = new Controller(20, 20)
-// c.in0 = c.in1 = true
-
-// c.out3 = true
-
-// setUpdate(() => {
-//     clear()
-
-//     c.out1 = c.in0 || c.in1
-//     c.out0 = c.in0 && c.in1 && c.in2 && c.in3
-
-//     c.draw()
-// })
-
-
-// setInputs("111", "333", "55")
-
-// let a = +await input("a", 12)
-// let b = +await input("a", 24)
-
-// output(a + a)
-
-// createTest()
+// g[2][3].image = nrs[3]
+// g[1][3].image = nrs[5]
+// g[0][3].image = nrs[8]
 
 
 // setInputs(`5 5 4
