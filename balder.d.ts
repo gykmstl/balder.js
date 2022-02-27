@@ -258,6 +258,7 @@ export declare function range(from: number, toExclusive: number): number[];
 export declare function range(from: number, toExclusive: number, by: number): number[];
 export declare function range(toExclusive: number): number[];
 export declare function shuffle<T>(array: T[]): T[];
+export declare function imagePath(value: string, color?: string): string;
 export declare function imagePaths(spritesheetPath: string, rows: number, columns: number): Promise<string[]>;
 export declare let div: HTMLDivElement | null;
 interface _ExtraTagMap {

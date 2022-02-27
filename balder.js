@@ -1,5 +1,5 @@
 // BalderJS
-// version 3.1.1 (2022-02-24) 
+// version 3.2 (2022-02-27) 
 // Mattias Steinwall
 // Baldergymnasiet, Skellefteå, Sweden
 //
@@ -339,7 +339,7 @@ export function triangle(x1, y1, x2, y2, x3, y3, color = _color, lineWidth) {
 }
 export function text(value, x = 0, y = 24, font = 24, color = _color, lineWidth) {
     if (typeof font == "number") {
-        ctx.font = font + "px monospace";
+        ctx.font = font + "px consolas,monospace"; // 3.2
     }
     else {
         ctx.font = font;
@@ -973,6 +973,19 @@ export function shuffle(array) {
         [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
+}
+// 3.2
+export function imagePath(value, color = "black") {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    ctx.font = "124px consolas,monospace";
+    const w = ctx.measureText(value).width;
+    canvas.width = w;
+    canvas.height = 132;
+    ctx.font = "124px consolas,monospace";
+    ctx.fillStyle = color;
+    ctx.fillText(value, 0, 106);
+    return canvas.toDataURL("image/png");
 }
 export async function imagePaths(spritesheetPath, rows, columns) {
     await _loadImage(spritesheetPath);
