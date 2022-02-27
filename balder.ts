@@ -1246,11 +1246,11 @@ export function shuffle<T>(array: T[]): T[] {
 // 3.2
 export function imagePath(value: string, color = "black") {
     const canvas = document.createElement("canvas")
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d")!;
 
     ctx.font = "124px consolas,monospace"
-    const w = ctx.measureText(value).width
-    canvas.width = w
+    const W = ctx!.measureText(value).width
+    canvas.width = W
     canvas.height = 132
     ctx.font = "124px consolas,monospace"
     ctx.fillStyle = color
@@ -1258,7 +1258,6 @@ export function imagePath(value: string, color = "black") {
 
     return canvas.toDataURL("image/png")
 }
-
 
 export async function imagePaths(spritesheetPath: string, rows: number, columns: number): Promise<string[]> {
     await _loadImage(spritesheetPath);

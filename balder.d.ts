@@ -20,7 +20,7 @@ export declare function circle(x: number, y: number, radius: number, color?: str
 export declare function rectangle(x: number, y: number, width: number, height: number, color?: string, lineWidth?: number): void;
 export declare function triangle(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, color?: string, lineWidth?: number): void;
 export declare function text(value: any, x?: number, y?: number, font?: number | string, color?: string, lineWidth?: number): void;
-export declare function image(path: string, x?: number, y?: number, width?: number, height?: number): Promise<void>;
+export declare function image(path: string, x?: number, y?: number, width?: number, height?: number | undefined): Promise<void>;
 export declare function clear(x?: number, y?: number, width?: number, height?: number): void;
 export declare function fill(color?: string, x?: number, y?: number, width?: number, height?: number): void;
 export declare class Vector2 {
@@ -114,7 +114,7 @@ export declare const keyboard: {
     x: boolean;
     y: boolean;
     z: boolean;
-    poll: () => string;
+    poll: () => string | null;
 };
 export declare const mouse: {
     x: number;
